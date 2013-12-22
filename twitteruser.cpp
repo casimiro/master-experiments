@@ -1,5 +1,10 @@
 #include "twitteruser.h"
 
+#include <boost/algorithm/string.hpp>
+#include <QSql>
+#include <QSqlQuery>
+#include <QVariant>
+
 namespace casimiro {
 
 TwitterUser::TwitterUser(long int _userId):
@@ -12,10 +17,35 @@ long int TwitterUser::getUserId() const
     return m_userId;
 }
 
-void TwitterUser::loadProfile(const session& _conParams, const ptime& _start, const ptime& _end)
+void TwitterUser::loadProfile(const QDateTime& _start, const QDateTime& _end)
 {
-    m_profile["0"] = 0.1;
-    m_profile["1"] = 0.5;
+    QSqlQuery query;
+    query.prepare("SELECT topics FROM tweet_topics WHERE user_id=:uid AND creation_time >= :s AND creation_time <= :e"); 
+    query.bindValue(":uid", static_cast<qlonglong>(m_userId));
+    query.bindValue(":s", _start.toString("yyyy-MM-dd HH:mm:ss"));
+    query.bindValue(":e", _end.toString("yyyy-MM-dd HH:mm:ss"));
+    query.exec();
+    
+    float val = 0;
+    
+    std::vector<std::string> pairs;
+    size_t colonPos;
+    std::string topic;
+    
+    while(query.next())
+    {
+        pairs.clear();
+        std::string content = query.value(0).toString().toStdString();
+        boost::split(pairs, content, boost::is_any_of(" "));
+        for (auto pair : pairs)
+        {
+            colonPos = pair.find(":");
+            topic = pair.substr(0, colonPos).c_str();
+            val = atof(pair.substr(colonPos+1, pair.size() - colonPos).c_str());
+            m_profile[topic] += val;
+        }
+    }
+    
 }
 
 const StringFloatMap& TwitterUser::getProfile() const

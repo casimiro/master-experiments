@@ -1,10 +1,6 @@
-#include <boost/date_time.hpp>
-#include <soci/soci.h>
 #include <map>
 #include <string>
-
-using namespace boost::posix_time;
-using namespace soci;
+#include <QDateTime>
 
 #ifndef TWITTERUSER_H
 #define TWITTERUSER_H
@@ -20,7 +16,7 @@ public:
     
     virtual long getUserId() const;
     
-    virtual void loadProfile(const session &_conParams, const ptime &_start, const ptime &_end);
+    virtual void loadProfile(const QDateTime& _start, const QDateTime& _end);
     
     virtual const StringFloatMap& getProfile() const;
     
