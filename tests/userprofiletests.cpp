@@ -18,16 +18,16 @@ QDateTime END_CANDIDATES = QDateTime::fromString("2013-01-02 00:10:01", "yyyy-MM
 QDateTime START_RETWEETS = QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss");
 QDateTime END_RETWEETS = QDateTime::fromString("2013-01-03 00:10:01", "yyyy-MM-dd HH:mm:ss");
 
-QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+QSqlDatabase DB = QSqlDatabase::addDatabase("QSQLITE");
 
 class TwitterUserTest: public Test {
 protected:
     TwitterUserTest():user(USER_ID)
     {
-        if(!db.isOpen())
+        if(!DB.isOpen())
         {
-            db.setDatabaseName("casimiro.db.sqlite");
-            db.open();
+            DB.setDatabaseName("casimiro.db.sqlite");
+            DB.open();
         }
     }
     
