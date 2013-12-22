@@ -9,14 +9,14 @@ using namespace ::testing;
 using namespace casimiro;
 
 long USER_ID = 2256;
-QDateTime startProfile = QDateTime::fromString("2013-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
-QDateTime endProfile = QDateTime::fromString("2013-01-01 00:10:01", "yyyy-MM-dd HH:mm:ss");
+QDateTime START_PROFILE = QDateTime::fromString("2013-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
+QDateTime END_PROFILE = QDateTime::fromString("2013-01-01 00:10:01", "yyyy-MM-dd HH:mm:ss");
 
-QDateTime startCandidates = QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss");
-QDateTime endCandidates = QDateTime::fromString("2013-01-02 00:10:01", "yyyy-MM-dd HH:mm:ss");
+QDateTime START_CANDIDATES = QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss");
+QDateTime END_CANDIDATES = QDateTime::fromString("2013-01-02 00:10:01", "yyyy-MM-dd HH:mm:ss");
 
-QDateTime startRetweets = QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss");
-QDateTime endRetweets = QDateTime::fromString("2013-01-03 00:10:01", "yyyy-MM-dd HH:mm:ss");
+QDateTime START_RETWEETS = QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss");
+QDateTime END_RETWEETS = QDateTime::fromString("2013-01-03 00:10:01", "yyyy-MM-dd HH:mm:ss");
 
 QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
 
@@ -121,7 +121,7 @@ TEST_F(TwitterUserTest, TwitterUserIsCreatedWithTheGivenId)
 
 TEST_F(TwitterUserTest, ProfileLoading)
 {
-    user.loadProfile(startProfile, endProfile);
+    user.loadProfile(START_PROFILE, END_PROFILE);
     auto profile = user.getProfile();
     
     ASSERT_NEAR(profile.find("0")->second, 0.3, 0.01);
@@ -132,7 +132,7 @@ TEST_F(TwitterUserTest, ProfileLoading)
 
 TEST_F(TwitterUserTest, GetCandidatesTweetsOnlyReturnsTweetsPublishedByFollowedUsersCreatedInTheGivenInterval)
 {
-    auto candidates = user.getCandidates(startCandidates, endCandidates);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
     
     ASSERT_EQ(candidates.size(), 4);
     ASSERT_EQ(candidates.at(0).getTweetId(), 6);
@@ -143,7 +143,7 @@ TEST_F(TwitterUserTest, GetCandidatesTweetsOnlyReturnsTweetsPublishedByFollowedU
 
 TEST_F(TwitterUserTest, GetCandidatesTweetsReturnsTweetsWithCorrectCreationTime)
 {
-    auto candidates = user.getCandidates(startCandidates, endCandidates);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
     
     ASSERT_EQ(candidates.at(0).getCreationTime(), QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss"));
     ASSERT_EQ(candidates.at(1).getCreationTime(), QDateTime::fromString("2013-01-02 00:05:00", "yyyy-MM-dd HH:mm:ss"));
@@ -154,7 +154,7 @@ TEST_F(TwitterUserTest, GetCandidatesTweetsReturnsTweetsWithCorrectCreationTime)
 
 TEST_F(TwitterUserTest, GetCandidatesTweetsLoadsTweetProfilesCorrectely)
 {
-    auto candidates = user.getCandidates(startCandidates, endCandidates);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
     
     auto profile = candidates.at(0).getProfile();
     ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
@@ -171,7 +171,7 @@ TEST_F(TwitterUserTest, GetCandidatesTweetsLoadsTweetProfilesCorrectely)
 
 TEST_F(TwitterUserTest, GetRetweetsReturnsOnlyRetweetsPublishedByTheUserInTheGivenPeriod)
 {
-    auto retweets = user.getRetweets(startRetweets, endRetweets);
+    auto retweets = user.getRetweets(START_RETWEETS, END_RETWEETS);
     
     ASSERT_EQ(retweets.size(), 2);
     ASSERT_EQ(retweets.at(0).getTweetId(), 12);
@@ -180,7 +180,7 @@ TEST_F(TwitterUserTest, GetRetweetsReturnsOnlyRetweetsPublishedByTheUserInTheGiv
 
 TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectRetweetedId)
 {
-    auto retweets = user.getRetweets(startRetweets, endRetweets);
+    auto retweets = user.getRetweets(START_RETWEETS, END_RETWEETS);
 
     ASSERT_EQ(retweets.at(0).getRetweetedId(), 6);
     ASSERT_EQ(retweets.at(1).getRetweetedId(), 7);
@@ -188,7 +188,7 @@ TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectRetweetedId)
 
 TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectCreationTime)
 {
-    auto retweets = user.getRetweets(startRetweets, endRetweets);
+    auto retweets = user.getRetweets(START_RETWEETS, END_RETWEETS);
     
     ASSERT_EQ(retweets.at(0).getCreationTime(), QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss"));
     ASSERT_EQ(retweets.at(1).getCreationTime(), QDateTime::fromString("2013-01-03 00:05:00", "yyyy-MM-dd HH:mm:ss"));
@@ -196,7 +196,7 @@ TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectCreationTime)
 
 TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectProfile)
 {
-    auto retweets = user.getRetweets(startRetweets, endRetweets);
+    auto retweets = user.getRetweets(START_RETWEETS, END_RETWEETS);
     
     auto profile = retweets.at(0).getProfile();
     ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
