@@ -76,7 +76,7 @@ TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime&
             profile[values.at(0).toStdString()] = atof(values.at(1).toStdString().c_str());
         }
         
-        candidates.push_back(Tweet(query.value(0).toLongLong(), profile));
+        candidates.push_back(Tweet(query.value(0).toLongLong(), query.value(2).toDateTime(), profile));
     }
     
     return candidates;

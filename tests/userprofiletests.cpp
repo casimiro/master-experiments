@@ -93,6 +93,11 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (10,'2013-01-02 00:15:00',2200,null,'0:0.1 1:0.5','bla brasil')");
     }
     
+    virtual void persistRetweetsData()
+    {
+        QSqlQuery query;
+    }
+    
     TwitterUser user;
 };
 
@@ -123,6 +128,17 @@ TEST_F(TwitterUserTest, GetCandidatesTweetsOnlyReturnsTweetsPublishedByFollowedU
     ASSERT_EQ(candidates.at(2).getTweetId(), 9);
     ASSERT_EQ(candidates.at(3).getTweetId(), 10);
 };
+
+TEST_F(TwitterUserTest, GetCandidatesTweetsReturnsTweetsWithCorrectCreationTime)
+{
+    auto candidates = user.getCandidates(startCandidates, endCandidates);
+    
+    ASSERT_EQ(candidates.at(0).getCreationTime(), QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss"));
+    ASSERT_EQ(candidates.at(1).getCreationTime(), QDateTime::fromString("2013-01-02 00:05:00", "yyyy-MM-dd HH:mm:ss"));
+    ASSERT_EQ(candidates.at(2).getCreationTime(), QDateTime::fromString("2013-01-02 00:08:00", "yyyy-MM-dd HH:mm:ss"));
+    ASSERT_EQ(candidates.at(3).getCreationTime(), QDateTime::fromString("2013-01-02 00:10:00", "yyyy-MM-dd HH:mm:ss"));
+    
+}
 
 TEST_F(TwitterUserTest, GetCandidatesTweetsLoadsTweetProfilesCorrectely)
 {
