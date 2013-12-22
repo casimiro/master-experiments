@@ -12,6 +12,9 @@ long USER_ID = 2256;
 QDateTime startProfile = QDateTime::fromString("2013-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
 QDateTime endProfile = QDateTime::fromString("2013-01-01 00:10:01", "yyyy-MM-dd HH:mm:ss");
 
+QDateTime startCandidates = QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss");
+QDateTime endCandidates = QDateTime::fromString("2013-01-02 00:10:01", "yyyy-MM-dd HH:mm:ss");
+
 class TwitterUserTest: public Test {
 protected:
     TwitterUserTest():user(USER_ID)
@@ -25,7 +28,7 @@ protected:
     {
         user = TwitterUser(USER_ID);
         createDbStructure();
-        loadDbData();
+        persistProfileData();
     }
     
     virtual void TearDown()
@@ -49,7 +52,7 @@ protected:
         query.exec(content.c_str());
     }
     
-    virtual void loadDbData()
+    virtual void persistProfileData()
     {
         QSqlQuery query;
         // Loading useful data
@@ -80,4 +83,11 @@ TEST_F(TwitterUserTest, ProfileLoading)
     ASSERT_NEAR(profile.find("1")->second, 0.5, 0.01);
     ASSERT_NEAR(profile.find("2")->second, 0.5, 0.01);
     ASSERT_NEAR(profile.find("3")->second, 0.5, 0.01);
+}
+
+TEST_F(TwitterUserTest, GetCandidatesTweets)
+{
+    auto candidates = user.getCandidates(startCandidates, endCandidates);
+    
+    ASSERT_EQ(candidates.size(), 4);
 }

@@ -53,4 +53,11 @@ const StringFloatMap& TwitterUser::getProfile() const
     return m_profile;
 }
 
+TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime& _end) const
+{
+    TweetVector candidates{Tweet(),Tweet(),Tweet(),Tweet()};
+    return candidates;
+}
+
+
 }
