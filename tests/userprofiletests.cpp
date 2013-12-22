@@ -123,3 +123,21 @@ TEST_F(TwitterUserTest, GetCandidatesTweetsOnlyReturnsTweetsPublishedByFollowedU
     ASSERT_EQ(candidates.at(2).getTweetId(), 9);
     ASSERT_EQ(candidates.at(3).getTweetId(), 10);
 };
+
+TEST_F(TwitterUserTest, GetCandidatesTweetsLoadsTweetProfilesCorrectely)
+{
+    auto candidates = user.getCandidates(startCandidates, endCandidates);
+    
+    auto profile = candidates.at(0).getProfile();
+    ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
+    ASSERT_NEAR(profile.find("3")->second, 0.5, 0.01);
+    
+    profile = candidates.at(1).getProfile();
+    ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
+    ASSERT_NEAR(profile.find("2")->second, 0.5, 0.01);
+    
+    profile = candidates.at(2).getProfile();
+    ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
+    ASSERT_NEAR(profile.find("1")->second, 0.5, 0.01);
+    
+}

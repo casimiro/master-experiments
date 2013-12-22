@@ -67,7 +67,17 @@ TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime&
     query.exec();
     
     while(query.next())
-        candidates.push_back(Tweet(query.value(0).toLongLong()));
+    {
+        StringFloatMap profile;
+        auto pairs = query.value(1).toString().split(" ");
+        for(auto pair : pairs)
+        {
+            auto values = pair.split(":");
+            profile[values.at(0).toStdString()] = atof(values.at(1).toStdString().c_str());
+        }
+        
+        candidates.push_back(Tweet(query.value(0).toLongLong(), profile));
+    }
     
     return candidates;
 }

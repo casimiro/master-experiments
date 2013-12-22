@@ -1,14 +1,12 @@
-#include <map>
 #include <string>
 #include <QDateTime>
+#include "utils.h"
 #include "tweet.h"
 
 #ifndef TWITTERUSER_H
 #define TWITTERUSER_H
 
 namespace casimiro {
-
-typedef std::map<std::string, float> StringFloatMap;    
 
 class TwitterUser {
 public:
