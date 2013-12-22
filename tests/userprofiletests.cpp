@@ -181,6 +181,7 @@ TEST_F(TwitterUserTest, GetRetweetsReturnsOnlyRetweetsPublishedByTheUserInTheGiv
 TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectRetweetedId)
 {
     auto retweets = user.getRetweets(startRetweets, endRetweets);
+
     ASSERT_EQ(retweets.at(0).getRetweetedId(), 6);
     ASSERT_EQ(retweets.at(1).getRetweetedId(), 7);
 }
@@ -188,6 +189,7 @@ TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectRetweetedId)
 TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectCreationTime)
 {
     auto retweets = user.getRetweets(startRetweets, endRetweets);
+    
     ASSERT_EQ(retweets.at(0).getCreationTime(), QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss"));
     ASSERT_EQ(retweets.at(1).getCreationTime(), QDateTime::fromString("2013-01-03 00:05:00", "yyyy-MM-dd HH:mm:ss"));
 }
