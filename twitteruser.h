@@ -21,6 +21,8 @@ public:
     
     virtual TweetVector getCandidates(const QDateTime& _start, const QDateTime& _end) const;
     
+    virtual TweetVector getRetweets(const QDateTime& _start, const QDateTime& _end) const;
+    
 private:
     long m_userId;
     StringFloatMap m_profile;

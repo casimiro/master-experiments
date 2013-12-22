@@ -68,19 +68,28 @@ TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime&
     
     while(query.next())
     {
-        StringFloatMap profile;
-        auto pairs = query.value(1).toString().split(" ");
-        for(auto pair : pairs)
-        {
-            auto values = pair.split(":");
-            profile[values.at(0).toStdString()] = atof(values.at(1).toStdString().c_str());
-        }
-        
+        StringFloatMap profile = BuildProfileFromString(query.value(1).toString());
         candidates.push_back(Tweet(query.value(0).toLongLong(), query.value(2).toDateTime(), profile));
     }
-    
     return candidates;
 }
 
+TweetVector TwitterUser::getRetweets(const QDateTime& _start, const QDateTime& _end) const
+{
+    TweetVector retweets;
+    QSqlQuery query;
+    query.prepare("SELECT id, topics, creation_time, retweeted FROM tweet_topics WHERE retweeted IS NOT NULL AND user_id = :uid AND creation_time BETWEEN :s AND :e");
+    query.bindValue(":uid", static_cast<qlonglong>(m_userId));
+    query.bindValue(":s", _start.toString("yyyy-MM-dd HH:mm:ss"));
+    query.bindValue(":e", _end.toString("yyyy-MM-dd HH:mm:ss"));
+    query.exec();
+    
+    while(query.next())
+    {
+        StringFloatMap profile = BuildProfileFromString(query.value(1).toString());
+        retweets.push_back(Tweet(query.value(0).toLongLong(), query.value(2).toDateTime(), profile, query.value(3).toLongLong()));
+    }
+    return retweets;
+}
 
 }
