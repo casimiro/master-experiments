@@ -11,8 +11,13 @@ typedef std::vector<Tweet> TweetVector;
 class Tweet
 {
 public:
-    Tweet();
+    Tweet(long _tweetId);
     virtual ~Tweet();
+    
+    virtual long getTweetId() const;
+    
+private:
+    long m_tweetId;
 };
 
 }

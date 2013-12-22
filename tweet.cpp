@@ -2,9 +2,9 @@
 
 namespace casimiro {
 
-Tweet::Tweet()
+Tweet::Tweet(long int _tweetId):
+    m_tweetId(_tweetId)
 {
-
 }
 
 Tweet::~Tweet()
@@ -12,5 +12,9 @@ Tweet::~Tweet()
 
 }
 
+long int Tweet::getTweetId() const
+{
+    return m_tweetId;
+}
     
 }

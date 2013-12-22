@@ -15,5 +15,6 @@ add_test(
     COMMAND tests
 )
 
-add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/sql/setup.sql ${CMAKE_BINARY_DIR}/tests)
+add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/sql/tweet_topics.sql ${CMAKE_BINARY_DIR}/tests)
+add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/sql/relationship.sql ${CMAKE_BINARY_DIR}/tests)
 add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/sql/teardown.sql ${CMAKE_BINARY_DIR}/tests)

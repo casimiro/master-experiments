@@ -55,7 +55,20 @@ const StringFloatMap& TwitterUser::getProfile() const
 
 TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime& _end) const
 {
-    TweetVector candidates{Tweet(),Tweet(),Tweet(),Tweet()};
+    TweetVector candidates;
+    QSqlQuery query;
+    query.prepare(
+        "SELECT id, topics, creation_time FROM tweet_topics WHERE user_id in (SELECT followed_id FROM relationship WHERE follower_id = :uid) "
+        "AND creation_time BETWEEN :s AND :e"
+    );
+    query.bindValue(":uid", static_cast<qlonglong>(m_userId));
+    query.bindValue(":s", _start.toString("yyyy-MM-dd HH:mm:ss"));
+    query.bindValue(":e", _end.toString("yyyy-MM-dd HH:mm:ss"));
+    query.exec();
+    
+    while(query.next())
+        candidates.push_back(Tweet(query.value(0).toLongLong()));
+    
     return candidates;
 }
 
