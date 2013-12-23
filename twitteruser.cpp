@@ -92,4 +92,42 @@ TweetVector TwitterUser::getRetweets(const QDateTime& _start, const QDateTime& _
     return retweets;
 }
 
+float TwitterUser::cosineSimilarity(const StringFloatMap& _profile) const
+{
+    float aNorm,bNorm,dot;
+    aNorm = bNorm = dot = 0;
+    
+    auto uIt = m_profile.begin();
+    auto nIt = _profile.begin();
+    
+    auto uEnd = m_profile.end();
+    auto nEnd = _profile.end();
+    
+    int compare;
+    while (uIt != uEnd && nIt != nEnd)
+    {
+        compare = uIt->first.compare(nIt->first);
+        if(compare == 0)
+        {
+            dot += uIt->second * nIt->second;
+            uIt++;
+            nIt++;
+        }
+        else if(compare < 0)
+            uIt++;
+        else if(compare > 0)
+            nIt++;
+    }
+    
+    for (uIt = m_profile.begin(); uIt != uEnd; uIt++)
+        aNorm += pow(uIt->second, 2);
+    aNorm = sqrt(aNorm);
+    
+    for (nIt = _profile.begin(); nIt != nEnd; nIt++)
+        bNorm += pow(nIt->second, 2);
+    bNorm = sqrt(bNorm);
+    
+    return dot / (aNorm * bNorm);
+}
+
 }

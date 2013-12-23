@@ -206,3 +206,22 @@ TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectProfile)
     ASSERT_NEAR(profile.find("2")->second, 0.5, 0.01);
 }
 
+TEST_F(TwitterUserTest, ComputesCosineSimilarityCorrectly)
+{
+    StringFloatMap profile;
+    user.loadProfile(START_PROFILE, END_PROFILE);
+    
+    profile["0"] = 0.1;
+    profile["3"] = 0.2;
+    ASSERT_NEAR(0.634335, user.cosineSimilarity(profile), 0.000001);
+    
+    profile.clear();
+    profile["0"] = 0.1;
+    profile["2"] = 0.4;
+    ASSERT_NEAR(0.6086445, user.cosineSimilarity(profile), 0.000001);
+    
+    profile.clear();
+    profile["0"] = 0.1;
+    profile["1"] = 0.1;
+    ASSERT_NEAR(0.617213, user.cosineSimilarity(profile), 0.000001);
+}

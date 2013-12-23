@@ -23,6 +23,8 @@ public:
     
     virtual TweetVector getRetweets(const QDateTime& _start, const QDateTime& _end) const;
     
+    virtual float cosineSimilarity(const StringFloatMap& _profile) const;
+    
 private:
     long m_userId;
     StringFloatMap m_profile;
