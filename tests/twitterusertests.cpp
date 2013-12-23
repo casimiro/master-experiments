@@ -28,29 +28,28 @@ protected:
         {
             DB.setDatabaseName("casimiro.db.sqlite");
             DB.open();
+            cleanUpDb();
+            createDbStructure();
+            persistProfileData();
+            persistCandidatesData();
+            persistRetweetsData();
         }
     }
     
     virtual void SetUp()
     {
         user = TwitterUser(USER_ID);
-        createDbStructure();
-        persistProfileData();
-        persistCandidatesData();
-        persistRetweetsData();
     }
     
     virtual void TearDown()
     {
-        cleanUpDb();
     }
     
     virtual void cleanUpDb()
     {
-        std::ifstream file("teardown.sql");
-        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         QSqlQuery query;
-        query.exec(content.c_str());
+        query.exec("DROP TABLE IF EXISTS relationship");
+        query.exec("DROP TABLE IF EXISTS tweet_topics");
     }
     
     virtual void createDbStructure()
@@ -87,9 +86,9 @@ protected:
         query.exec("INSERT INTO relationship VALUES (2256, 2200)");
         query.exec("INSERT INTO relationship VALUES (2256, 2201)");
         
-        query.exec("INSERT INTO tweet_topics VALUES (6,'2013-01-02 00:00:00',2200,null,'0:0.1 3:0.5','bla asdf')");
-        query.exec("INSERT INTO tweet_topics VALUES (7,'2013-01-02 00:05:00',2201,null,'0:0.1 2:0.5','bla usp')");
-        query.exec("INSERT INTO tweet_topics VALUES (9,'2013-01-02 00:08:00',2201,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (6,'2013-01-02 00:00:00',2200,null,'0:0.1 3:0.2','bla asdf')");
+        query.exec("INSERT INTO tweet_topics VALUES (7,'2013-01-02 00:05:00',2201,null,'0:0.1 2:0.4','bla usp')");
+        query.exec("INSERT INTO tweet_topics VALUES (9,'2013-01-02 00:08:00',2201,null,'0:0.1 1:0.1','bla brasil')");
         query.exec("INSERT INTO tweet_topics VALUES (10,'2013-01-02 00:10:00',2200,null,'0:0.1 1:0.5','bla brasil')");
         
         // Noise data
@@ -141,7 +140,7 @@ TEST_F(TwitterUserTest, GetCandidatesTweetsOnlyReturnsTweetsPublishedByFollowedU
     ASSERT_EQ(candidates.at(3).getTweetId(), 10);
 };
 
-TEST_F(TwitterUserTest, GetCandidatesTweetsReturnsTweetsWithCorrectCreationTime)
+TEST_F(TwitterUserTest, GetCandidatesReturnsTweetsWithCorrectCreationTime)
 {
     auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
     
@@ -152,21 +151,21 @@ TEST_F(TwitterUserTest, GetCandidatesTweetsReturnsTweetsWithCorrectCreationTime)
     
 }
 
-TEST_F(TwitterUserTest, GetCandidatesTweetsLoadsTweetProfilesCorrectely)
+TEST_F(TwitterUserTest, GetCandidatesLoadsTweetProfilesCorrectely)
 {
     auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
     
     auto profile = candidates.at(0).getProfile();
     ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
-    ASSERT_NEAR(profile.find("3")->second, 0.5, 0.01);
+    ASSERT_NEAR(profile.find("3")->second, 0.2, 0.01);
     
     profile = candidates.at(1).getProfile();
     ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
-    ASSERT_NEAR(profile.find("2")->second, 0.5, 0.01);
+    ASSERT_NEAR(profile.find("2")->second, 0.4, 0.01);
     
     profile = candidates.at(2).getProfile();
     ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
-    ASSERT_NEAR(profile.find("1")->second, 0.5, 0.01);
+    ASSERT_NEAR(profile.find("1")->second, 0.1, 0.01);
 }
 
 TEST_F(TwitterUserTest, GetRetweetsReturnsOnlyRetweetsPublishedByTheUserInTheGivenPeriod)
@@ -206,3 +205,4 @@ TEST_F(TwitterUserTest, GetRetweetsReturnsRetweetsWithCorrectProfile)
     ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
     ASSERT_NEAR(profile.find("2")->second, 0.5, 0.01);
 }
+
