@@ -25,6 +25,8 @@ public:
     
     virtual float cosineSimilarity(const StringFloatMap& _profile) const;
     
+    virtual TweetVector sortCandidates(const TweetVector& _candidates) const;
+    
 private:
     long m_userId;
     StringFloatMap m_profile;

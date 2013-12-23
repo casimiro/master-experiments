@@ -4,6 +4,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <fstream>
+#include "profilenotloadederror.h"
 
 using namespace ::testing;
 using namespace casimiro;
@@ -224,4 +225,24 @@ TEST_F(TwitterUserTest, ComputesCosineSimilarityCorrectly)
     profile["0"] = 0.1;
     profile["1"] = 0.1;
     ASSERT_NEAR(0.617213, user.cosineSimilarity(profile), 0.000001);
+}
+
+TEST_F(TwitterUserTest, SortCandidatesRaisesExceptionWhenProfileNotLoaded)
+{
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    
+    ASSERT_THROW(user.sortCandidates(candidates), ProfileNotLoadedError);
+}
+
+TEST_F(TwitterUserTest, SortCandidatesWithRespectTheCosineSimilarityFunction)
+{
+    user.loadProfile(START_PROFILE, END_PROFILE);
+    
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto sorted = user.sortCandidates(candidates);
+    
+    ASSERT_EQ(6, sorted.at(0).getTweetId());
+    ASSERT_EQ(9, sorted.at(1).getTweetId());
+    ASSERT_EQ(7, sorted.at(2).getTweetId());
+    ASSERT_EQ(10, sorted.at(3).getTweetId());
 }

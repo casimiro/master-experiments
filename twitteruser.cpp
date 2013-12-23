@@ -4,6 +4,7 @@
 #include <QSql>
 #include <QSqlQuery>
 #include <QVariant>
+#include "profilenotloadederror.h"
 
 namespace casimiro {
 
@@ -128,6 +129,31 @@ float TwitterUser::cosineSimilarity(const StringFloatMap& _profile) const
     bNorm = sqrt(bNorm);
     
     return dot / (aNorm * bNorm);
+}
+
+TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates) const
+{
+    if(m_profile.empty())
+        throw ProfileNotLoadedError();
+    
+    TweetVector sorted;
+    std::map<float, std::vector<int>> aux;
+    int i = 0;
+    
+    for(auto candidate : _candidates)
+    {
+        auto sim = cosineSimilarity(candidate.getProfile());
+        if(aux.find(sim) == aux.end())
+            aux[sim] = std::vector<int>();
+        aux.find(sim)->second.push_back(i);
+        i++;
+    }
+    
+    for(auto it = aux.rbegin(); it != aux.crend(); it++)
+        for(auto index : it->second)
+            sorted.push_back(_candidates.at(index));
+    
+    return sorted;
 }
 
 }

@@ -12,7 +12,7 @@ add_definitions(-std=c++11 -std=gnu++11 -pthread -W -Wall -Wno-unused-function)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(master-experiments tweet.cpp twitteruser.cpp main.cpp)
+add_executable(master-experiments profilenotloadederror.cpp tweet.cpp twitteruser.cpp main.cpp)
 
 target_link_libraries(master-experiments Qt5::Sql Qt5::Core ${Boost_LIBRARIES})
 
