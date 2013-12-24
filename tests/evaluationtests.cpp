@@ -13,6 +13,7 @@ public:
     {
         calculateMRR(_position);
         calculateSAt5(_position);
+        calculateSAt10(_position);
     }
     
     virtual ~Metrics() {}
@@ -27,9 +28,15 @@ public:
         return m_SAt5;
     }
     
+    virtual float SAt10() const
+    {
+        return m_SAt10;
+    }
+    
 private:
     float m_MRR;
     float m_SAt5;
+    float m_SAt10;
     
     virtual void calculateMRR(int _position)
     {
@@ -40,7 +47,14 @@ private:
     {
         m_SAt5 = 0;
         if(_position <= 5)
-            m_SAt5 = 1.0;
+            m_SAt5 = 1;
+    }
+    
+    virtual void calculateSAt10(int _position)
+    {
+        m_SAt10 = 0;
+        if(_position <= 10)
+            m_SAt10 = 1;
     }
 };
 
@@ -77,6 +91,13 @@ protected:
     {
     }
     
+    virtual void SetUp()
+    {
+        user.loadProfile(START_PROFILE, END_PROFILE);
+        auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+        sortedCandidates = user.sortCandidates(candidates);
+    }
+    
     static void SetUpTestCase()
     {
         if(!DB.isOpen())
@@ -93,7 +114,6 @@ protected:
     static void PersistProfileData()
     {
         QSqlQuery query;
-        // Loading useful data
         query.exec("INSERT INTO tweet_topics VALUES (2,'2013-01-01 00:00:00',2256,null,'0:0.1 3:0.5','bla asdf')");
         query.exec("INSERT INTO tweet_topics VALUES (3,'2013-01-01 00:05:00',2256,null,'0:0.1 2:0.5','bla usp')");
         query.exec("INSERT INTO tweet_topics VALUES (4,'2013-01-01 00:10:00',2256,null,'0:0.1 1:0.5','bla brasil')");
@@ -103,7 +123,6 @@ protected:
     {
         QSqlQuery query;
         
-        // Useful data
         query.exec("INSERT INTO relationship VALUES (2256, 2200)");
         query.exec("INSERT INTO relationship VALUES (2256, 2201)");
         
@@ -118,8 +137,6 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (14,'2013-01-02 00:09:33',2200,null,'0:0.1 1:0.5','bla brasil')");
         query.exec("INSERT INTO tweet_topics VALUES (15,'2013-01-02 00:09:34',2200,null,'0:0.1 1:0.5','bla brasil')");
         query.exec("INSERT INTO tweet_topics VALUES (16,'2013-01-02 00:09:35',2200,null,'0:0.1 1:0.5','bla brasil')");
-        
-        // Noise data
     }
 
     long USER_ID = 2256;
@@ -132,37 +149,43 @@ protected:
     
     TwitterUser user;
     Evaluation evaluation;
+    TweetVector sortedCandidates;
 };
 
 TEST_F(EvaluationTests, GetMetricsComputesMRRCorrectly)
 {
-    user.loadProfile(START_PROFILE, END_PROFILE);
-    
-    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
-    auto sorted = user.sortCandidates(candidates);
-    auto retweet = Tweet(20, END_CANDIDATES, sorted.at(1).getProfile(), sorted.at(1).getTweetId());    
-    auto metrics = evaluation.getMetrics(sorted, retweet);
+    auto retweet = Tweet(20, END_CANDIDATES, sortedCandidates.at(1).getProfile(), sortedCandidates.at(1).getTweetId());    
+    auto metrics = evaluation.getMetrics(sortedCandidates, retweet);
     
     ASSERT_EQ(0.5, metrics.MRR());
     
-    retweet = Tweet(20, END_CANDIDATES, sorted.at(2).getProfile(), sorted.at(2).getTweetId());    
-    metrics = evaluation.getMetrics(sorted, retweet);
+    retweet = Tweet(20, END_CANDIDATES, sortedCandidates.at(2).getProfile(), sortedCandidates.at(2).getTweetId());    
+    metrics = evaluation.getMetrics(sortedCandidates, retweet);
     ASSERT_NEAR(0.333, metrics.MRR(), 0.001);
 }
 
 TEST_F(EvaluationTests, GetMetricsComputesSAt5Correctly)
 {
-    user.loadProfile(START_PROFILE, END_PROFILE);
-    
-    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
-    auto sorted = user.sortCandidates(candidates);
-    auto retweet = Tweet(20, END_CANDIDATES, sorted.at(1).getProfile(), sorted.at(1).getTweetId());    
-    auto metrics = evaluation.getMetrics(sorted, retweet);
+    auto retweet = Tweet(20, END_CANDIDATES, sortedCandidates.at(1).getProfile(), sortedCandidates.at(1).getTweetId());    
+    auto metrics = evaluation.getMetrics(sortedCandidates, retweet);
     
     ASSERT_EQ(1, metrics.SAt5());
     
-    retweet = Tweet(20, END_CANDIDATES, sorted.at(5).getProfile(), sorted.at(5).getTweetId());    
-    metrics = evaluation.getMetrics(sorted, retweet);
+    retweet = Tweet(20, END_CANDIDATES, sortedCandidates.at(5).getProfile(), sortedCandidates.at(5).getTweetId());    
+    metrics = evaluation.getMetrics(sortedCandidates, retweet);
     
     ASSERT_EQ(0, metrics.SAt5());
+}
+
+TEST_F(EvaluationTests, GetMetricsComputesSAt10Correctly)
+{
+    auto retweet = Tweet(20, END_CANDIDATES, sortedCandidates.at(1).getProfile(), sortedCandidates.at(1).getTweetId());    
+    auto metrics = evaluation.getMetrics(sortedCandidates, retweet);
+    
+    ASSERT_EQ(1, metrics.SAt10());
+    
+    retweet = Tweet(20, END_CANDIDATES, sortedCandidates.at(10).getProfile(), sortedCandidates.at(10).getTweetId());    
+    metrics = evaluation.getMetrics(sortedCandidates, retweet);
+    
+    ASSERT_EQ(0, metrics.SAt10());
 }
