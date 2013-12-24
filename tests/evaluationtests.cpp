@@ -2,84 +2,11 @@
 #include "twitteruser.h"
 #include <QSqlDatabase>
 #include "common.h"
+#include "metrics.h"
+#include "evaluation.h"
 
 using namespace casimiro;
 using namespace ::testing;
-
-
-class Metrics {
-public:
-    Metrics(int _position)
-    {
-        calculateMRR(_position);
-        calculateSAt5(_position);
-        calculateSAt10(_position);
-    }
-    
-    virtual ~Metrics() {}
-    
-    virtual float MRR() const 
-    {
-        return m_MRR;
-    }
-    
-    virtual float SAt5() const
-    {
-        return m_SAt5;
-    }
-    
-    virtual float SAt10() const
-    {
-        return m_SAt10;
-    }
-    
-private:
-    float m_MRR;
-    float m_SAt5;
-    float m_SAt10;
-    
-    virtual void calculateMRR(int _position)
-    {
-        m_MRR = 1.0 / (_position);
-    }
-    
-    virtual void calculateSAt5(int _position)
-    {
-        m_SAt5 = 0;
-        if(_position <= 5)
-            m_SAt5 = 1;
-    }
-    
-    virtual void calculateSAt10(int _position)
-    {
-        m_SAt10 = 0;
-        if(_position <= 10)
-            m_SAt10 = 1;
-    }
-};
-
-class Evaluation {
-public:
-    Evaluation(){}
-    virtual ~Evaluation() {}
-    
-    virtual Metrics getMetrics(const TweetVector &_sortedCandidates, const Tweet &_retweet)
-    {
-        int i = 0;
-        int pos = -1;
-        for(auto tweet : _sortedCandidates)
-        {
-            if(tweet.getTweetId() == _retweet.getRetweetedId())
-            {
-                pos = i;
-                break;
-            }
-            i++;
-        }
-        pos++;
-        return Metrics(pos);
-    }
-};
 
 class EvaluationTests : public Test {
 protected:
