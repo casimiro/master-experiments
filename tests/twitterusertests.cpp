@@ -15,16 +15,20 @@ class TwitterUserTest: public Test {
 protected:
     TwitterUserTest():user(USER_ID)
     {
+    }
+    
+    static void SetUpTestCase()
+    {
         if(!DB.isOpen())
         {
             DB.setDatabaseName("casimiro.db.sqlite");
             DB.open();
-            cleanUpDb();
-            createDbStructure();
-            persistProfileData();
-            persistCandidatesData();
-            persistRetweetsData();
         }
+        DropTables();
+        CreateDbStructure();
+        persistProfileData();
+        persistCandidatesData();
+        persistRetweetsData();
     }
     
     virtual void SetUp()
@@ -36,27 +40,9 @@ protected:
     {
     }
     
-    virtual void cleanUpDb()
-    {
-        QSqlQuery query;
-        query.exec("DROP TABLE IF EXISTS relationship");
-        query.exec("DROP TABLE IF EXISTS tweet_topics");
-    }
     
-    virtual void createDbStructure()
-    {
-        QSqlQuery query;
-        std::ifstream file("tweet_topics.sql");
-        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        query.exec(content.c_str());
-        file.close();
-        
-        file.open("relationship.sql");
-        content = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        query.exec(content.c_str());
-    }
     
-    virtual void persistProfileData()
+    static void persistProfileData()
     {
         QSqlQuery query;
         // Loading useful data
@@ -69,7 +55,7 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (5,'2013-01-01 00:15:00',2256,null,'0:0.1 2:0.5','bla usp')");
     }
     
-    virtual void persistCandidatesData()
+    static void persistCandidatesData()
     {
         QSqlQuery query;
         
@@ -87,7 +73,7 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (11,'2013-01-02 00:15:00',2200,null,'0:0.1 1:0.5','bla brasil')");
     }
     
-    virtual void persistRetweetsData()
+    static void persistRetweetsData()
     {
         QSqlQuery query;
         
@@ -110,7 +96,7 @@ protected:
     QDateTime START_RETWEETS = QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss");
     QDateTime END_RETWEETS = QDateTime::fromString("2013-01-03 00:10:01", "yyyy-MM-dd HH:mm:ss");
     
-    TwitterUser user;    
+    TwitterUser user;
 };
 
 
