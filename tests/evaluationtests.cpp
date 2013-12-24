@@ -75,10 +75,6 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (2,'2013-01-01 00:00:00',2256,null,'0:0.1 3:0.5','bla asdf')");
         query.exec("INSERT INTO tweet_topics VALUES (3,'2013-01-01 00:05:00',2256,null,'0:0.1 2:0.5','bla usp')");
         query.exec("INSERT INTO tweet_topics VALUES (4,'2013-01-01 00:10:00',2256,null,'0:0.1 1:0.5','bla brasil')");
-        
-        // Loading noise data
-        query.exec("INSERT INTO tweet_topics VALUES (1,'2012-12-31 23:55:00',2256,null,'0:0.1 3:0.5','bla asdf')");
-        query.exec("INSERT INTO tweet_topics VALUES (5,'2013-01-01 00:15:00',2256,null,'0:0.1 2:0.5','bla usp')");
     }
     
     static void PersistCandidatesData()
@@ -91,12 +87,17 @@ protected:
         
         query.exec("INSERT INTO tweet_topics VALUES (6,'2013-01-02 00:00:00',2200,null,'0:0.1 3:0.2','bla asdf')");
         query.exec("INSERT INTO tweet_topics VALUES (7,'2013-01-02 00:05:00',2201,null,'0:0.1 2:0.4','bla usp')");
+        query.exec("INSERT INTO tweet_topics VALUES (8,'2013-01-02 00:06:00',2200,null,'0:0.1 2:0.5','bla usp')");
         query.exec("INSERT INTO tweet_topics VALUES (9,'2013-01-02 00:08:00',2201,null,'0:0.1 1:0.1','bla brasil')");
-        query.exec("INSERT INTO tweet_topics VALUES (10,'2013-01-02 00:10:00',2200,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (10,'2013-01-02 00:09:00',2200,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (11,'2013-01-02 00:09:30',2200,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (12,'2013-01-02 00:09:31',2200,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (13,'2013-01-02 00:09:32',2200,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (14,'2013-01-02 00:09:33',2200,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (15,'2013-01-02 00:09:34',2200,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (16,'2013-01-02 00:09:35',2200,null,'0:0.1 1:0.5','bla brasil')");
         
         // Noise data
-        query.exec("INSERT INTO tweet_topics VALUES (8,'2013-01-02 00:05:00',2202,null,'0:0.1 2:0.5','bla usp')");
-        query.exec("INSERT INTO tweet_topics VALUES (11,'2013-01-02 00:15:00',2200,null,'0:0.1 1:0.5','bla brasil')");
     }
 
     long USER_ID = 2256;
