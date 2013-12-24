@@ -9,7 +9,12 @@ using namespace ::testing;
 
 class Metrics {
 public:
-    Metrics(float _MRR):m_MRR(_MRR) {}
+    Metrics(int _position)
+    {
+        calculateMRR(_position);
+        calculateSAt5(_position);
+    }
+    
     virtual ~Metrics() {}
     
     virtual float MRR() const 
@@ -17,8 +22,26 @@ public:
         return m_MRR;
     }
     
+    virtual float SAt5() const
+    {
+        return m_SAt5;
+    }
+    
 private:
     float m_MRR;
+    float m_SAt5;
+    
+    virtual void calculateMRR(int _position)
+    {
+        m_MRR = 1.0 / (_position);
+    }
+    
+    virtual void calculateSAt5(int _position)
+    {
+        m_SAt5 = 0;
+        if(_position <= 5)
+            m_SAt5 = 1.0;
+    }
 };
 
 class Evaluation {
@@ -39,9 +62,8 @@ public:
             }
             i++;
         }
-        
-        float MRR = 1.0 / (pos+1);
-        return Metrics(MRR);
+        pos++;
+        return Metrics(pos);
     }
 };
 
@@ -130,5 +152,17 @@ TEST_F(EvaluationTests, GetMetricsComputesMRRCorrectly)
 
 TEST_F(EvaluationTests, GetMetricsComputesSAt5Correctly)
 {
+    user.loadProfile(START_PROFILE, END_PROFILE);
     
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto sorted = user.sortCandidates(candidates);
+    auto retweet = Tweet(20, END_CANDIDATES, sorted.at(1).getProfile(), sorted.at(1).getTweetId());    
+    auto metrics = evaluation.getMetrics(sorted, retweet);
+    
+    ASSERT_EQ(1, metrics.SAt5());
+    
+    retweet = Tweet(20, END_CANDIDATES, sorted.at(5).getProfile(), sorted.at(5).getTweetId());    
+    metrics = evaluation.getMetrics(sorted, retweet);
+    
+    ASSERT_EQ(0, metrics.SAt5());
 }
