@@ -47,7 +47,7 @@ public:
 
 class EvaluationTests : public Test {
 protected:
-    EvaluationTests()
+    EvaluationTests():user(USER_ID)
     {
     }
     
@@ -107,13 +107,14 @@ protected:
     
     QDateTime START_CANDIDATES = QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss");
     QDateTime END_CANDIDATES = QDateTime::fromString("2013-01-02 00:10:01", "yyyy-MM-dd HH:mm:ss");
+    
+    TwitterUser user;
+    Evaluation evaluation;
 };
 
 TEST_F(EvaluationTests, GetMetricsComputesMRRCorrectly)
 {
-    TwitterUser user(USER_ID);
     user.loadProfile(START_PROFILE, END_PROFILE);
-    Evaluation evaluation;
     
     auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
     auto sorted = user.sortCandidates(candidates);
@@ -125,4 +126,9 @@ TEST_F(EvaluationTests, GetMetricsComputesMRRCorrectly)
     retweet = Tweet(20, END_CANDIDATES, sorted.at(2).getProfile(), sorted.at(2).getTweetId());    
     metrics = evaluation.getMetrics(sorted, retweet);
     ASSERT_NEAR(0.333, metrics.MRR(), 0.001);
+}
+
+TEST_F(EvaluationTests, GetMetricsComputesSAt5Correctly)
+{
+    
 }
