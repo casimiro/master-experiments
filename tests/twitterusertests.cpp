@@ -5,21 +5,11 @@
 #include <QSqlQuery>
 #include <fstream>
 #include "profilenotloadederror.h"
+#include "common.h"
 
 using namespace ::testing;
 using namespace casimiro;
 
-long USER_ID = 2256;
-QDateTime START_PROFILE = QDateTime::fromString("2013-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
-QDateTime END_PROFILE = QDateTime::fromString("2013-01-01 00:10:01", "yyyy-MM-dd HH:mm:ss");
-
-QDateTime START_CANDIDATES = QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss");
-QDateTime END_CANDIDATES = QDateTime::fromString("2013-01-02 00:10:01", "yyyy-MM-dd HH:mm:ss");
-
-QDateTime START_RETWEETS = QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss");
-QDateTime END_RETWEETS = QDateTime::fromString("2013-01-03 00:10:01", "yyyy-MM-dd HH:mm:ss");
-
-QSqlDatabase DB = QSqlDatabase::addDatabase("QSQLITE");
 
 class TwitterUserTest: public Test {
 protected:
@@ -110,7 +100,17 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (13,'2013-01-03 00:15:00',2256, 9,'0:0.1 1:0.5','bla brasil')");
     }
     
-    TwitterUser user;
+    long USER_ID = 2256;
+    QDateTime START_PROFILE = QDateTime::fromString("2013-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
+    QDateTime END_PROFILE = QDateTime::fromString("2013-01-01 00:10:01", "yyyy-MM-dd HH:mm:ss");
+
+    QDateTime START_CANDIDATES = QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss");
+    QDateTime END_CANDIDATES = QDateTime::fromString("2013-01-02 00:10:01", "yyyy-MM-dd HH:mm:ss");
+
+    QDateTime START_RETWEETS = QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss");
+    QDateTime END_RETWEETS = QDateTime::fromString("2013-01-03 00:10:01", "yyyy-MM-dd HH:mm:ss");
+    
+    TwitterUser user;    
 };
 
 
