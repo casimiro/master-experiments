@@ -26,9 +26,9 @@ protected:
         }
         DropTables();
         CreateDbStructure();
-        persistProfileData();
-        persistCandidatesData();
-        persistRetweetsData();
+        PersistProfileData();
+        PersistCandidatesData();
+        PersistRetweetsData();
     }
     
     virtual void SetUp()
@@ -42,7 +42,7 @@ protected:
     
     
     
-    static void persistProfileData()
+    static void PersistProfileData()
     {
         QSqlQuery query;
         // Loading useful data
@@ -55,7 +55,7 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (5,'2013-01-01 00:15:00',2256,null,'0:0.1 2:0.5','bla usp')");
     }
     
-    static void persistCandidatesData()
+    static void PersistCandidatesData()
     {
         QSqlQuery query;
         
@@ -73,7 +73,7 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (11,'2013-01-02 00:15:00',2200,null,'0:0.1 1:0.5','bla brasil')");
     }
     
-    static void persistRetweetsData()
+    static void PersistRetweetsData()
     {
         QSqlQuery query;
         
