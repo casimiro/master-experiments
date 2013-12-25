@@ -1,7 +1,12 @@
 #ifndef METRICS_H
 #define METRICS_H
 
+#include <vector>
+
 namespace casimiro {
+
+class Metrics;
+typedef std::vector<Metrics> MetricsVector;
 
 class Metrics {
 public:
@@ -30,26 +35,25 @@ public:
     }
     
 private:
-    float m_MRR;
-    float m_SAt5;
-    float m_SAt10;
+    float m_MRR = 0.0;
+    float m_SAt5 = 0.0;
+    float m_SAt10 = 0.0;
     
     virtual void calculateMRR(int _position)
     {
-        m_MRR = 1.0 / (_position);
+        if(_position != -1)
+            m_MRR = 1.0 / (++_position);
     }
     
     virtual void calculateSAt5(int _position)
     {
-        m_SAt5 = 0;
-        if(_position <= 5)
+        if(_position != -1 && _position <= 4)
             m_SAt5 = 1;
     }
     
     virtual void calculateSAt10(int _position)
     {
-        m_SAt10 = 0;
-        if(_position <= 10)
+        if(_position != -1 && _position <= 9)
             m_SAt10 = 1;
     }
 };

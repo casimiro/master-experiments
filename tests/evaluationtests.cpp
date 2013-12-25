@@ -36,6 +36,7 @@ protected:
         CreateDbStructure();
         PersistProfileData();
         PersistCandidatesData();
+        PersistRetweetsData();
     }
     
     static void PersistProfileData()
@@ -49,7 +50,6 @@ protected:
     static void PersistCandidatesData()
     {
         QSqlQuery query;
-        
         query.exec("INSERT INTO relationship VALUES (2256, 2200)");
         query.exec("INSERT INTO relationship VALUES (2256, 2201)");
         
@@ -65,6 +65,13 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (15,'2013-01-02 00:09:34',2200,null,'0:0.1 1:0.5','bla brasil')");
         query.exec("INSERT INTO tweet_topics VALUES (16,'2013-01-02 00:09:35',2200,null,'0:0.1 1:0.5','bla brasil')");
     }
+    
+    static void PersistRetweetsData()
+    {
+        QSqlQuery query;
+        query.exec("INSERT INTO tweet_topics VALUES (17,'2013-01-03 00:00:00',2256, 6,'0:0.1 3:0.5','bla asdf')");
+        query.exec("INSERT INTO tweet_topics VALUES (18,'2013-01-03 00:01:00',2256, 7,'0:0.1 2:0.5','bla usp')");
+    }
 
     long USER_ID = 2256;
     
@@ -73,6 +80,9 @@ protected:
     
     QDateTime START_CANDIDATES = QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss");
     QDateTime END_CANDIDATES = QDateTime::fromString("2013-01-02 00:10:01", "yyyy-MM-dd HH:mm:ss");
+    
+    QDateTime START_RETWEETS = QDateTime::fromString("2013-01-03 00:00:00", "yyyy-MM-dd HH:mm:ss");
+    QDateTime END_RETWEETS = QDateTime::fromString("2013-01-03 00:10:01", "yyyy-MM-dd HH:mm:ss");
     
     TwitterUser user;
     Evaluation evaluation;
@@ -115,4 +125,26 @@ TEST_F(EvaluationTests, GetMetricsComputesSAt10Correctly)
     metrics = evaluation.getMetrics(sortedCandidates, retweet);
     
     ASSERT_EQ(0, metrics.SAt10());
+}
+
+TEST_F(EvaluationTests, GetMetricsReturnsZeroValuesWhenRetweetIsNotInTheSortedList)
+{
+    auto retweet = Tweet(20, END_CANDIDATES, sortedCandidates.at(1).getProfile(), 999);    
+    auto metrics = evaluation.getMetrics(sortedCandidates, retweet);
+    
+    ASSERT_EQ(0, metrics.MRR());
+    ASSERT_EQ(0, metrics.SAt5());
+    ASSERT_EQ(0, metrics.SAt10());
+}
+
+TEST_F(EvaluationTests, EvaluateUserGeneratesAListOfCorrectMetrics)
+{
+    int hours = 48;
+    auto metrics = evaluation.evaluateUser(user, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, hours);
+    
+    ASSERT_EQ(2, metrics.size()); // There are 2 retweets in the db
+    
+    ASSERT_EQ(1, metrics.at(0).MRR());
+    ASSERT_EQ(1, metrics.at(0).SAt5());
+    ASSERT_EQ(1, metrics.at(0).SAt10());
 }

@@ -1,6 +1,7 @@
 #ifndef EVALUATION_H
 #define EVALUATION_H
 
+#include "twitteruser.h"
 #include "metrics.h"
 #include "tweet.h"
 
@@ -11,7 +12,14 @@ public:
     Evaluation();
     virtual ~Evaluation();
     
-    virtual Metrics getMetrics(const TweetVector &_sortedCandidates, const Tweet &_retweet) const;
+    virtual Metrics getMetrics(const TweetVector& _sortedCandidates, const Tweet& _retweet) const;
+    
+    virtual MetricsVector evaluateUser(TwitterUser& _user, 
+                                       const QDateTime& _startProfile, 
+                                       const QDateTime& _endProfile, 
+                                       const QDateTime& _startRetweets,
+                                       const QDateTime& _endRetweets,
+                                       int _candidatePeriodInHours);
 };
 
 }
