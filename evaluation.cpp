@@ -1,5 +1,6 @@
 #include "evaluation.h"
 #include <fstream>
+#include <iostream>
 
 namespace casimiro {
 
@@ -58,9 +59,15 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
     std::ofstream file(_outFileName);
     for(auto user : _users)
     {
-        auto metrics = evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours);
-        for(auto metric : metrics)
-            file << user.getUserId() << "," << metric.MRR() << "," << metric.SAt5() << "," << metric.SAt10() << std::endl;
+        try {
+            auto metrics = evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours);
+            for(auto metric : metrics)
+                file << user.getUserId() << "," << metric.MRR() << "," << metric.SAt5() << "," << metric.SAt10() << std::endl;
+        }
+        catch(std::exception& _e)
+        {
+            std::cout << "User: " << user.getUserId() << " - " << _e.what() << std::endl;
+        }
     }
 }
 

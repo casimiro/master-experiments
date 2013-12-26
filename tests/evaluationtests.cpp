@@ -76,10 +76,13 @@ protected:
         QSqlQuery query;
         query.exec("INSERT INTO tweet_topics VALUES (17,'2013-01-03 00:00:00',2256, 6,'0:0.1 3:0.5','bla asdf')");
         query.exec("INSERT INTO tweet_topics VALUES (18,'2013-01-03 00:01:00',2256, 7,'0:0.1 2:0.5','bla usp')");
+        
+        query.exec("INSERT INTO tweet_topics VALUES (19,'2013-01-03 00:01:00',9999, 7,'0:0.1 2:0.5','bla usp')");
     }
 
     std::string RESULT_SYSTEM_FILE_NAME = "result.csv";
     long USER_ID = 2256;
+    long EMPTY_PROFILE_USER_ID = 9999;
     int HOURS = 48;
     
     QDateTime START_PROFILE = QDateTime::fromString("2013-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
@@ -176,6 +179,20 @@ TEST_F(EvaluationTests, EvaluateSystemGeneratesAFileWithTheMetricsList)
 TEST_F(EvaluationTests, EvaluateSystemUsingUsersFileGeneratesAFileWithTheMetricsList)
 {
     evaluation.evaluateSystem("users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
+    
+    std::ifstream file(RESULT_SYSTEM_FILE_NAME);
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    
+    std::ifstream expectedFile("expected_result.csv");
+    std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
+    
+    ASSERT_EQ(expectedFileContent, fileContent);
+}
+
+TEST_F(EvaluationTests, EvaluateSystemIsNotAffectedByAEmptyProfileUser)
+{
+    TwitterUserVector users{TwitterUser(EMPTY_PROFILE_USER_ID), user};
+    evaluation.evaluateSystem(users, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
     
     std::ifstream file(RESULT_SYSTEM_FILE_NAME);
     std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
