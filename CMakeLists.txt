@@ -10,6 +10,12 @@ set(CMAKE_AUTOMOC ON)
 
 add_definitions(-std=c++11 -std=gnu++11 -pthread -W -Wall -Wno-unused-function)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_VERBOSE_MAKEFILE ON)
+else()
+    add_definitions(-Ofast)
+endif()
+
 include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(master-experiments evaluation.cpp tweet.cpp twitteruser.cpp main.cpp)
