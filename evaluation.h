@@ -19,7 +19,8 @@ public:
                                        const QDateTime& _endProfile, 
                                        const QDateTime& _startRetweets,
                                        const QDateTime& _endRetweets,
-                                       int _candidatePeriodInHours);
+                                       int _candidatePeriodInHours,
+                                       const StringIntMap& _topicLifeSpanMap = StringIntMap());
     
     virtual void evaluateSystem(const TwitterUserVector& _users, 
                                 const QDateTime& _startProfile, 
@@ -27,7 +28,8 @@ public:
                                 const QDateTime& _startRetweets,
                                 const QDateTime& _endRetweets,
                                 int _candidatePeriodInHours, 
-                                const std::string& _outFileName);
+                                const std::string& _outFileName,
+                                const StringIntMap& _topicLifeSpanMap = StringIntMap());
     
     virtual void evaluateSystem(const std::string& _usersFile, 
                                 const QDateTime& _startProfile, 

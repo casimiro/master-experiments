@@ -162,6 +162,24 @@ TEST_F(EvaluationTests, EvaluateUserGeneratesAListOfCorrectMetrics)
     ASSERT_EQ(1, metrics.at(1).SAt10());
 }
 
+TEST_F(EvaluationTests, EvaluateUserWithTopicLifeSpanFilterGeneratesAListOfCorrectMetrics)
+{
+    StringIntMap topicFilter;
+    topicFilter["3"] = 12*2600;
+    
+    auto metrics = evaluation.evaluateUser(user, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, topicFilter);
+    
+    ASSERT_EQ(2, metrics.size()); // There are 2 retweets in the db
+    
+    ASSERT_EQ(0, metrics.at(0).MRR());
+    ASSERT_EQ(0, metrics.at(0).SAt5());
+    ASSERT_EQ(0, metrics.at(0).SAt10());
+    
+    ASSERT_NEAR(0.5, metrics.at(1).MRR(), 0.01);
+    ASSERT_EQ(1, metrics.at(1).SAt5());
+    ASSERT_EQ(1, metrics.at(1).SAt10());
+}
+
 TEST_F(EvaluationTests, EvaluateSystemGeneratesAFileWithTheMetricsList)
 {
     TwitterUserVector users{user};
@@ -198,6 +216,23 @@ TEST_F(EvaluationTests, EvaluateSystemIsNotAffectedByAEmptyProfileUser)
     std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     
     std::ifstream expectedFile("expected_result.csv");
+    std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
+    
+    ASSERT_EQ(expectedFileContent, fileContent);
+}
+
+TEST_F(EvaluationTests, EvaluateSystemWithTopicLifeSpanFilter)
+{
+    StringIntMap topicFilter;
+    topicFilter["3"] = 12*2600;
+    
+    TwitterUserVector users{user};
+    evaluation.evaluateSystem(users, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME, topicFilter);
+    
+    std::ifstream file(RESULT_SYSTEM_FILE_NAME);
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    
+    std::ifstream expectedFile("expected_result_filtered.csv");
     std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
     
     ASSERT_EQ(expectedFileContent, fileContent);

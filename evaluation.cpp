@@ -33,7 +33,8 @@ MetricsVector Evaluation::evaluateUser(TwitterUser& _user,
                                        const QDateTime& _endProfile, 
                                        const QDateTime& _startRetweets, 
                                        const QDateTime& _endRetweets, 
-                                       int _candidatePeriodInHours)
+                                       int _candidatePeriodInHours,
+                                       const StringIntMap& _topicLifeSpanMap)
 {
     MetricsVector metrics;
     
@@ -43,7 +44,7 @@ MetricsVector Evaluation::evaluateUser(TwitterUser& _user,
     {
         auto start = retweet.getCreationTime().addSecs(-_candidatePeriodInHours*3600);
         auto candidates = _user.getCandidates(start, retweet.getCreationTime());
-        metrics.push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime()), retweet));
+        metrics.push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime(), _topicLifeSpanMap), retweet));
     }
     return metrics;
 }
@@ -54,13 +55,14 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
                                 const QDateTime& _startRetweets, 
                                 const QDateTime& _endRetweets, 
                                 int _candidatePeriodInHours, 
-                                const std::string& _outFileName)
+                                const std::string& _outFileName,
+                                const StringIntMap& _topicLifeSpanMap)
 {
     std::ofstream file(_outFileName);
     for(auto user : _users)
     {
         try {
-            auto metrics = evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours);
+            auto metrics = evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _topicLifeSpanMap);
             for(auto metric : metrics)
                 file << user.getUserId() << "," << metric.MRR() << "," << metric.SAt5() << "," << metric.SAt10() << std::endl;
         }
