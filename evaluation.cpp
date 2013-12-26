@@ -64,4 +64,25 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
     }
 }
 
+void Evaluation::evaluateSystem(const std::string& _usersFile, 
+                                const QDateTime& _startProfile, 
+                                const QDateTime& _endProfile, 
+                                const QDateTime& _startRetweets, 
+                                const QDateTime& _endRetweets, 
+                                int _candidatePeriodInHours, 
+                                const std::string& _outFileName)
+{
+    TwitterUserVector users;
+    std::ifstream file(_usersFile);
+    std::string line;
+    
+    while(std::getline(file, line))
+    {
+        long userId = atol(line.c_str());
+        users.push_back(TwitterUser(userId));
+    }
+    
+    evaluateSystem(users, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _outFileName);
+}
+
 }

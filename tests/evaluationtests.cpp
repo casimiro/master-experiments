@@ -171,6 +171,17 @@ TEST_F(EvaluationTests, EvaluateSystemGeneratesAFileWithTheMetricsList)
     std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
     
     ASSERT_EQ(expectedFileContent, fileContent);
+}
+
+TEST_F(EvaluationTests, EvaluateSystemUsingUsersFileGeneratesAFileWithTheMetricsList)
+{
+    evaluation.evaluateSystem("users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
     
+    std::ifstream file(RESULT_SYSTEM_FILE_NAME);
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     
+    std::ifstream expectedFile("expected_result.csv");
+    std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
+    
+    ASSERT_EQ(expectedFileContent, fileContent);
 }

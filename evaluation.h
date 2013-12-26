@@ -28,6 +28,14 @@ public:
                                 const QDateTime& _endRetweets,
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName);
+    
+    virtual void evaluateSystem(const std::string& _usersFile, 
+                                const QDateTime& _startProfile, 
+                                const QDateTime& _endProfile, 
+                                const QDateTime& _startRetweets,
+                                const QDateTime& _endRetweets,
+                                int _candidatePeriodInHours, 
+                                const std::string& _outFileName);
 };
 
 }
