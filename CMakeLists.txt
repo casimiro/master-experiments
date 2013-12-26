@@ -18,4 +18,6 @@ target_link_libraries(master-experiments Qt5::Sql Qt5::Core ${Boost_LIBRARIES})
 
 install(TARGETS master-experiments RUNTIME DESTINATION bin)
 
+add_custom_command(TARGET master-experiments COMMAND cp ${CMAKE_SOURCE_DIR}/users.csv ${CMAKE_BINARY_DIR})
+
 add_subdirectory(tests)
