@@ -20,6 +20,14 @@ public:
                                        const QDateTime& _startRetweets,
                                        const QDateTime& _endRetweets,
                                        int _candidatePeriodInHours);
+    
+    virtual void evaluateSystem(const TwitterUserVector& _users, 
+                                const QDateTime& _startProfile, 
+                                const QDateTime& _endProfile, 
+                                const QDateTime& _startRetweets,
+                                const QDateTime& _endRetweets,
+                                int _candidatePeriodInHours, 
+                                const std::string& _outFileName);
 };
 
 }

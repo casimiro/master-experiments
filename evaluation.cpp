@@ -1,4 +1,5 @@
 #include "evaluation.h"
+#include <fstream>
 
 namespace casimiro {
 
@@ -44,6 +45,23 @@ MetricsVector Evaluation::evaluateUser(TwitterUser& _user,
         metrics.push_back(getMetrics(_user.sortCandidates(candidates), retweet));
     }
     return metrics;
+}
+
+void Evaluation::evaluateSystem(const TwitterUserVector& _users,
+                                const QDateTime& _startProfile, 
+                                const QDateTime& _endProfile, 
+                                const QDateTime& _startRetweets, 
+                                const QDateTime& _endRetweets, 
+                                int _candidatePeriodInHours, 
+                                const std::string& _outFileName)
+{
+    std::ofstream file(_outFileName);
+    for(auto user : _users)
+    {
+        auto metrics = evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours);
+        for(auto metric : metrics)
+            file << user.getUserId() << "," << metric.MRR() << "," << metric.SAt5() << "," << metric.SAt10() << std::endl;
+    }
 }
 
 }

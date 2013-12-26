@@ -25,6 +25,11 @@ protected:
         sortedCandidates = user.sortCandidates(candidates);
     }
     
+    virtual void TearDown()
+    {
+        std::remove(RESULT_SYSTEM_FILE_NAME.c_str());
+    }
+    
     static void SetUpTestCase()
     {
         if(!DB.isOpen())
@@ -73,7 +78,9 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (18,'2013-01-03 00:01:00',2256, 7,'0:0.1 2:0.5','bla usp')");
     }
 
+    std::string RESULT_SYSTEM_FILE_NAME = "result.csv";
     long USER_ID = 2256;
+    int HOURS = 48;
     
     QDateTime START_PROFILE = QDateTime::fromString("2013-01-01 00:00:00", "yyyy-MM-dd HH:mm:ss");
     QDateTime END_PROFILE = QDateTime::fromString("2013-01-01 00:10:01", "yyyy-MM-dd HH:mm:ss");
@@ -139,12 +146,31 @@ TEST_F(EvaluationTests, GetMetricsReturnsZeroValuesWhenRetweetIsNotInTheSortedLi
 
 TEST_F(EvaluationTests, EvaluateUserGeneratesAListOfCorrectMetrics)
 {
-    int hours = 48;
-    auto metrics = evaluation.evaluateUser(user, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, hours);
+    auto metrics = evaluation.evaluateUser(user, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS);
     
     ASSERT_EQ(2, metrics.size()); // There are 2 retweets in the db
     
     ASSERT_EQ(1, metrics.at(0).MRR());
     ASSERT_EQ(1, metrics.at(0).SAt5());
     ASSERT_EQ(1, metrics.at(0).SAt10());
+    
+    ASSERT_NEAR(0.333, metrics.at(1).MRR(), 0.01);
+    ASSERT_EQ(1, metrics.at(1).SAt5());
+    ASSERT_EQ(1, metrics.at(1).SAt10());
+}
+
+TEST_F(EvaluationTests, EvaluateSystemGeneratesAFileWithTheMetricsList)
+{
+    TwitterUserVector users{user};
+    evaluation.evaluateSystem(users, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
+    
+    std::ifstream file(RESULT_SYSTEM_FILE_NAME);
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    
+    std::ifstream expectedFile("expected_result.csv");
+    std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
+    
+    ASSERT_EQ(expectedFileContent, fileContent);
+    
+    
 }

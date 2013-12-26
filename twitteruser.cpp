@@ -13,6 +13,11 @@ TwitterUser::TwitterUser(long int _userId):
 {
 }
 
+TwitterUser::~TwitterUser()
+{
+
+}
+
 long int TwitterUser::getUserId() const
 {
     return m_userId;

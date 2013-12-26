@@ -2,16 +2,20 @@
 #include <QDateTime>
 #include "utils.h"
 #include "tweet.h"
+#include <vector>
 
 #ifndef TWITTERUSER_H
 #define TWITTERUSER_H
 
 namespace casimiro {
 
+class TwitterUser;
+typedef std::vector<TwitterUser> TwitterUserVector;
+
 class TwitterUser {
 public:
     TwitterUser(long _userId);
-    ~TwitterUser() {}
+    virtual ~TwitterUser();
     
     virtual long getUserId() const;
     
