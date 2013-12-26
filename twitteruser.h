@@ -11,6 +11,7 @@ namespace casimiro {
 
 class TwitterUser;
 typedef std::vector<TwitterUser> TwitterUserVector;
+typedef std::map<std::string, int> StringIntMap;
 
 class TwitterUser {
 public:
@@ -29,11 +30,13 @@ public:
     
     virtual float cosineSimilarity(const StringFloatMap& _profile) const;
     
-    virtual TweetVector sortCandidates(const TweetVector& _candidates) const;
+    virtual TweetVector sortCandidates(const TweetVector& _candidates, const QDateTime& _recommendationTime, const StringIntMap& _topicLifeSpan = StringIntMap()) const;
     
 private:
     long m_userId;
     StringFloatMap m_profile;
+    
+    static bool CandidateHasOldTopics(const Tweet& _candidate, const StringIntMap& _topicLifeSpan, const QDateTime& _retweetCreationTime);
 };
 
 }

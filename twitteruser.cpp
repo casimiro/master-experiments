@@ -136,7 +136,7 @@ float TwitterUser::cosineSimilarity(const StringFloatMap& _profile) const
     return dot / (aNorm * bNorm);
 }
 
-TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates) const
+TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates, const QDateTime& _recommendationTime, const StringIntMap& _topicLifeSpan) const
 {
     if(m_profile.empty())
         throw ProfileNotLoadedError();
@@ -147,10 +147,13 @@ TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates) const
     
     for(auto candidate : _candidates)
     {
-        auto sim = cosineSimilarity(candidate.getProfile());
-        if(aux.find(sim) == aux.end())
-            aux[sim] = std::vector<int>();
-        aux.find(sim)->second.push_back(i);
+        if(!CandidateHasOldTopics(candidate, _topicLifeSpan, _recommendationTime))
+        {
+            auto sim = cosineSimilarity(candidate.getProfile());
+            if(aux.find(sim) == aux.end())
+                aux[sim] = std::vector<int>();
+            aux.find(sim)->second.push_back(i);
+        }
         i++;
     }
     
@@ -159,6 +162,18 @@ TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates) const
             sorted.push_back(_candidates.at(index));
     
     return sorted;
+}
+
+bool TwitterUser::CandidateHasOldTopics(const Tweet& _candidate, const StringIntMap& _topicLifeSpan, const QDateTime& _retweetCreationTime)
+{
+    int lifeInSeconds = (_retweetCreationTime.toMSecsSinceEpoch() - _candidate.getCreationTime().toMSecsSinceEpoch()) / 1000;
+    for(auto pair : _candidate.getProfile())
+    {
+        auto it = _topicLifeSpan.find(pair.first);
+        if(it != _topicLifeSpan.end() && lifeInSeconds > it->second)
+            return true;
+    }
+    return false;
 }
 
 }

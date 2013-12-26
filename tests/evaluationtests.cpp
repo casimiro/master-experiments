@@ -22,7 +22,7 @@ protected:
     {
         user.loadProfile(START_PROFILE, END_PROFILE);
         auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
-        sortedCandidates = user.sortCandidates(candidates);
+        sortedCandidates = user.sortCandidates(candidates, QDateTime());
     }
     
     virtual void TearDown()

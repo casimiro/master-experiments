@@ -217,7 +217,7 @@ TEST_F(TwitterUserTest, SortCandidatesRaisesExceptionWhenProfileNotLoaded)
 {
     auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
     
-    ASSERT_THROW(user.sortCandidates(candidates), ProfileNotLoadedError);
+    ASSERT_THROW(user.sortCandidates(candidates, QDateTime()), ProfileNotLoadedError);
 }
 
 TEST_F(TwitterUserTest, SortCandidatesWithRespectTheCosineSimilarityFunction)
@@ -225,10 +225,25 @@ TEST_F(TwitterUserTest, SortCandidatesWithRespectTheCosineSimilarityFunction)
     user.loadProfile(START_PROFILE, END_PROFILE);
     
     auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
-    auto sorted = user.sortCandidates(candidates);
+    auto sorted = user.sortCandidates(candidates, QDateTime());
     
     ASSERT_EQ(6, sorted.at(0).getTweetId());
     ASSERT_EQ(9, sorted.at(1).getTweetId());
     ASSERT_EQ(7, sorted.at(2).getTweetId());
     ASSERT_EQ(10, sorted.at(3).getTweetId());
+}
+
+TEST_F(TwitterUserTest, SortCandidatesApplyingSomeTopicFilter)
+{
+    user.loadProfile(START_PROFILE, END_PROFILE);
+    
+    std::map<std::string, int> topicFilter;
+    topicFilter["3"] = 3600*12;
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto sorted = user.sortCandidates(candidates, START_RETWEETS, topicFilter);
+    
+    ASSERT_EQ(3, sorted.size());
+    ASSERT_EQ(9, sorted.at(0).getTweetId());
+    ASSERT_EQ(7, sorted.at(1).getTweetId());
+    ASSERT_EQ(10, sorted.at(2).getTweetId());
 }
