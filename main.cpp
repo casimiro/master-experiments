@@ -3,6 +3,7 @@
 #include <fstream>
 #include "twitteruser.h"
 #include "evaluation.h"
+#include "utils.h"
 
 using namespace casimiro;
 
@@ -27,8 +28,14 @@ int main(int /*argc*/, char** /* argv*/) {
         return -1;
     }
     
+    StringIntMaps topicLifeSpanMaps;
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_60"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_70"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_80"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_90"));
+    
     Evaluation evaluation;
-    evaluation.evaluateSystem("users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "results.csv");
+    evaluation.evaluateSystem("data/users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "~/results.csv", topicLifeSpanMaps);
     
     return 0;
 }
