@@ -29,7 +29,7 @@ public:
                                 const QDateTime& _endRetweets,
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
-                                const StringIntMap& _topicLifeSpanMap = StringIntMap());
+                                const StringIntMaps& _topicLifeSpanMaps = StringIntMaps());
     
     virtual void evaluateSystem(const std::string& _usersFile, 
                                 const QDateTime& _startProfile, 

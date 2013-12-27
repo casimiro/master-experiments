@@ -56,15 +56,25 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
                                 const QDateTime& _endRetweets, 
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
-                                const StringIntMap& _topicLifeSpanMap)
+                                const StringIntMaps& _topicLifeSpanMaps)
 {
     std::ofstream file(_outFileName);
     for(auto user : _users)
     {
         try {
-            auto metrics = evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _topicLifeSpanMap);
-            for(auto metric : metrics)
-                file << user.getUserId() << "," << metric.MRR() << "," << metric.SAt5() << "," << metric.SAt10() << std::endl;
+            auto metricsList = std::vector<MetricsVector>();
+            metricsList.push_back(evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours));
+            
+            for(auto _topicLifeSpanMap : _topicLifeSpanMaps)
+                metricsList.push_back(evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _topicLifeSpanMap));
+            
+            for(std::size_t i = 0; i < metricsList.at(0).size(); i++)
+            {
+                file << user.getUserId();
+                for(auto metrics : metricsList)
+                    file << "," << metrics.at(i).MRR() << "," << metrics.at(i).SAt5() << "," << metrics.at(i).SAt10();
+                file << std::endl;
+            }
         }
         catch(std::exception& _e)
         {

@@ -221,6 +221,7 @@ TEST_F(EvaluationTests, EvaluateSystemIsNotAffectedByAEmptyProfileUser)
     ASSERT_EQ(expectedFileContent, fileContent);
 }
 
+/*
 TEST_F(EvaluationTests, EvaluateSystemWithTopicLifeSpanFilter)
 {
     StringIntMap topicFilter;
@@ -236,4 +237,25 @@ TEST_F(EvaluationTests, EvaluateSystemWithTopicLifeSpanFilter)
     std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
     
     ASSERT_EQ(expectedFileContent, fileContent);
+}
+*/
+
+TEST_F(EvaluationTests, EvaluateSystemWithMultipleTopicLifeSpanFilters)
+{
+    TwitterUserVector users{user};
+    StringIntMaps topicFilters{StringIntMap(), StringIntMap()};
+        
+    topicFilters.at(0).insert(std::make_pair("3", 12*2600));
+    topicFilters.at(1).insert(std::make_pair("2", 12*2600));
+    
+    evaluation.evaluateSystem(users, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME, topicFilters);
+    
+    std::ifstream file(RESULT_SYSTEM_FILE_NAME);
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    
+    std::ifstream expectedFile("expected_result_filtered.csv");
+    std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
+    
+    ASSERT_EQ(expectedFileContent, fileContent);
+    
 }

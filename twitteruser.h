@@ -12,6 +12,7 @@ namespace casimiro {
 class TwitterUser;
 typedef std::vector<TwitterUser> TwitterUserVector;
 typedef std::map<std::string, int> StringIntMap;
+typedef std::vector<StringIntMap> StringIntMaps;
 
 class TwitterUser {
 public:
