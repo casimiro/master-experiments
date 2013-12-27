@@ -4,7 +4,7 @@ include_directories($ENV{GMOCK_HOME}/include $ENV{GMOCK_HOME}/gtest/include ../ 
 
 link_directories($ENV{GMOCK_HOME}/build $ENV{GMOCK_HOME}/gtest/build)
 
-add_executable(tests evaluationtests.cpp twitterusertests.cpp main.cpp ../twitteruser.cpp ../tweet.cpp ../evaluation.cpp)
+add_executable(tests utilstests.cpp evaluationtests.cpp twitterusertests.cpp main.cpp ../twitteruser.cpp ../tweet.cpp ../evaluation.cpp)
 
 enable_testing()
 
@@ -20,3 +20,4 @@ add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/sql/relatio
 add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/expected_result.csv ${CMAKE_BINARY_DIR}/tests)
 add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/expected_result_filtered.csv ${CMAKE_BINARY_DIR}/tests)
 add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/users.csv ${CMAKE_BINARY_DIR}/tests)
+add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/topic_timings ${CMAKE_BINARY_DIR}/tests)
