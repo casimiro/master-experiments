@@ -89,7 +89,8 @@ void Evaluation::evaluateSystem(const std::string& _usersFile,
                                 const QDateTime& _startRetweets, 
                                 const QDateTime& _endRetweets, 
                                 int _candidatePeriodInHours, 
-                                const std::string& _outFileName)
+                                const std::string& _outFileName,
+                                const StringIntMaps& _topicLifeSpanMaps)
 {
     TwitterUserVector users;
     std::ifstream file(_usersFile);
@@ -101,7 +102,7 @@ void Evaluation::evaluateSystem(const std::string& _usersFile,
         users.push_back(TwitterUser(userId));
     }
     
-    evaluateSystem(users, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _outFileName);
+    evaluateSystem(users, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _outFileName, _topicLifeSpanMaps);
 }
 
 }

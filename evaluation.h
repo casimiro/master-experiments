@@ -37,7 +37,8 @@ public:
                                 const QDateTime& _startRetweets,
                                 const QDateTime& _endRetweets,
                                 int _candidatePeriodInHours, 
-                                const std::string& _outFileName);
+                                const std::string& _outFileName,
+                                const StringIntMaps& _topicLifeSpanMaps = StringIntMaps());
 };
 
 }
