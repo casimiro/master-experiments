@@ -35,7 +35,7 @@ int main(int /*argc*/, char** /* argv*/) {
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_90"));
     
     Evaluation evaluation;
-    evaluation.evaluateSystem("data/users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "~/results.csv", topicLifeSpanMaps);
+    evaluation.evaluateSystem("data/users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/results.csv", topicLifeSpanMaps);
     
     return 0;
 }
