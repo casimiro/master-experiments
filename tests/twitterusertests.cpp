@@ -116,6 +116,17 @@ TEST_F(TwitterUserTest, ProfileLoading)
     ASSERT_NEAR(profile.find("3")->second, 0.5, 0.01);
 }
 
+TEST_F(TwitterUserTest, BOWProfileLoading)
+{
+    user.loadBOWProfile(START_PROFILE, END_PROFILE);
+    auto bowProfile = user.getProfile();
+    
+    ASSERT_NEAR(bowProfile.find("bla")->second, 0.5, 0.01);
+    ASSERT_NEAR(bowProfile.find("asdf")->second, 0.166, 0.01);
+    ASSERT_NEAR(bowProfile.find("usp")->second, 0.166, 0.01);
+    ASSERT_NEAR(bowProfile.find("brasil")->second, 0.166, 0.01);
+}
+
 TEST_F(TwitterUserTest, GetCandidatesTweetsOnlyReturnsTweetsPublishedByFollowedUsersCreatedInTheGivenInterval)
 {
     auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);

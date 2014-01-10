@@ -21,6 +21,8 @@ public:
     
     virtual void loadProfile(const QDateTime& _start, const QDateTime& _end);
     
+    virtual void loadBOWProfile(const QDateTime& _start, const QDateTime& _end);
+    
     virtual const StringFloatMap& getProfile() const;
     
     virtual TweetVector getCandidates(const QDateTime& _start, const QDateTime& _end) const;

@@ -54,6 +54,33 @@ void TwitterUser::loadProfile(const QDateTime& _start, const QDateTime& _end)
     
 }
 
+void TwitterUser::loadBOWProfile(const QDateTime& _start, const QDateTime& _end)
+{
+    QSqlQuery query;
+    query.prepare("SELECT content FROM tweet_topics WHERE user_id=:uid AND creation_time >= :s AND creation_time <= :e"); 
+    query.bindValue(":uid", static_cast<qlonglong>(m_userId));
+    query.bindValue(":s", _start.toString("yyyy-MM-dd HH:mm:ss"));
+    query.bindValue(":e", _end.toString("yyyy-MM-dd HH:mm:ss"));
+    query.exec();
+    
+    int totalTokens = 0;
+    
+    while(query.next())
+    {
+        std::vector<std::string> tokens;
+        auto content = query.value(0).toString().toStdString();
+        boost::split(tokens, content, boost::is_any_of(" "));
+        for (auto token : tokens)
+        {
+            m_profile[token] += 1;
+            totalTokens++;
+        }
+    }
+    
+    for(auto it = m_profile.begin(); it != m_profile.end(); it++)
+        it->second /= totalTokens;
+}
+
 const StringFloatMap& TwitterUser::getProfile() const
 {
     return m_profile;
