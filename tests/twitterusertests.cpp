@@ -66,7 +66,7 @@ protected:
         query.exec("INSERT INTO tweet_topics VALUES (6,'2013-01-02 00:00:00',2200,null,'0:0.1 3:0.2','bla asdf')");
         query.exec("INSERT INTO tweet_topics VALUES (7,'2013-01-02 00:05:00',2201,null,'0:0.1 2:0.4','bla usp')");
         query.exec("INSERT INTO tweet_topics VALUES (9,'2013-01-02 00:08:00',2201,null,'0:0.1 1:0.1','bla brasil')");
-        query.exec("INSERT INTO tweet_topics VALUES (10,'2013-01-02 00:10:00',2200,null,'0:0.1 1:0.5','bla brasil')");
+        query.exec("INSERT INTO tweet_topics VALUES (10,'2013-01-02 00:10:00',2200,null,'0:0.1 1:0.5','bla rj sp')");
         
         // Noise data
         query.exec("INSERT INTO tweet_topics VALUES (8,'2013-01-02 00:05:00',2202,null,'0:0.1 2:0.5','bla usp')");
@@ -164,6 +164,30 @@ TEST_F(TwitterUserTest, GetCandidatesLoadsTweetProfilesCorrectely)
     profile = candidates.at(2).getProfile();
     ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
     ASSERT_NEAR(profile.find("1")->second, 0.1, 0.01);
+}
+
+TEST_F(TwitterUserTest, GetCandidatesAsBOWLoadsTweetProfilesCorrectly)
+{
+    user.loadBOWProfile(START_PROFILE, END_PROFILE);
+    
+    auto candidates = user.getCandidatesWithBOWProfile(START_CANDIDATES, END_CANDIDATES);
+    
+    auto profile = candidates.at(0).getProfile();
+    ASSERT_NEAR(profile.find("bla")->second, 0.5, 0.01);
+    ASSERT_NEAR(profile.find("asdf")->second, 0.5, 0.01);
+    
+    profile = candidates.at(1).getProfile();
+    ASSERT_NEAR(profile.find("bla")->second, 0.5, 0.01);
+    ASSERT_NEAR(profile.find("usp")->second, 0.5, 0.01);
+    
+    profile = candidates.at(2).getProfile();
+    ASSERT_NEAR(profile.find("bla")->second, 0.5, 0.01);
+    ASSERT_NEAR(profile.find("brasil")->second, 0.5, 0.01);
+    
+    profile = candidates.at(3).getProfile();
+    ASSERT_NEAR(profile.find("bla")->second, 0.333, 0.01);
+    ASSERT_NEAR(profile.find("rj")->second, 0.333, 0.01);
+    ASSERT_NEAR(profile.find("sp")->second, 0.333, 0.01);
 }
 
 TEST_F(TwitterUserTest, GetRetweetsReturnsOnlyRetweetsPublishedByTheUserInTheGivenPeriod)

@@ -26,6 +26,23 @@ inline StringFloatMap BuildProfileFromString(const QString &_content)
     return profile;
 }
 
+inline StringFloatMap BuildBOWProfileFromString(const QString &_content)
+{
+    int totalTokens = 0;
+    StringFloatMap profile;
+    auto tokens = _content.split(" ");
+    for(auto token : tokens)
+    {
+        profile[token.toStdString()] += 1;
+        totalTokens++;
+    }
+    
+    for(auto it = profile.begin(); it != profile.end(); it++)
+        it->second /= totalTokens;
+    
+    return profile;
+}
+
 inline StringIntMap BuildTopicLifeSpanMapFromFile(const std::string& _fileName)
 {
     StringIntMap topics;

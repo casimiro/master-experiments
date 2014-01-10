@@ -27,6 +27,8 @@ public:
     
     virtual TweetVector getCandidates(const QDateTime& _start, const QDateTime& _end) const;
     
+    virtual TweetVector getCandidatesWithBOWProfile(const QDateTime& _start, const QDateTime& _end) const;
+    
     virtual TweetVector getRetweets(const QDateTime& _start, const QDateTime& _end) const;
     
     virtual float cosineSimilarity(const StringFloatMap& _profile) const;
