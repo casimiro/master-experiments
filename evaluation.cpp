@@ -43,7 +43,7 @@ MetricsVector Evaluation::evaluateUser(TwitterUser& _user,
     for(auto retweet : retweets)
     {
         auto start = retweet.getCreationTime().addSecs(-_candidatePeriodInHours*3600);
-        auto candidates = _user.getCandidates(start, retweet.getCreationTime());
+        auto candidates = _user.getCandidates(start, retweet.getCreationTime(), TopicProfile);
         metrics.push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime(), _topicLifeSpanMap), retweet));
     }
     return metrics;

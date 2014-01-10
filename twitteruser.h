@@ -9,6 +9,11 @@
 
 namespace casimiro {
 
+enum ProfileType {
+    TopicProfile,
+    BOWProfile
+};
+
 class TwitterUser;
 typedef std::vector<TwitterUser> TwitterUserVector;
 
@@ -25,9 +30,7 @@ public:
     
     virtual const StringFloatMap& getProfile() const;
     
-    virtual TweetVector getCandidates(const QDateTime& _start, const QDateTime& _end) const;
-    
-    virtual TweetVector getCandidatesWithBOWProfile(const QDateTime& _start, const QDateTime& _end) const;
+    virtual TweetVector getCandidates(const QDateTime& _start, const QDateTime& _end, ProfileType _profileType) const;
     
     virtual TweetVector getRetweets(const QDateTime& _start, const QDateTime& _end) const;
     

@@ -129,7 +129,7 @@ TEST_F(TwitterUserTest, BOWProfileLoading)
 
 TEST_F(TwitterUserTest, GetCandidatesTweetsOnlyReturnsTweetsPublishedByFollowedUsersCreatedInTheGivenInterval)
 {
-    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, TopicProfile);
     
     ASSERT_EQ(candidates.size(), 4);
     ASSERT_EQ(candidates.at(0).getTweetId(), 6);
@@ -140,7 +140,7 @@ TEST_F(TwitterUserTest, GetCandidatesTweetsOnlyReturnsTweetsPublishedByFollowedU
 
 TEST_F(TwitterUserTest, GetCandidatesReturnsTweetsWithCorrectCreationTime)
 {
-    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, TopicProfile);
     
     ASSERT_EQ(candidates.at(0).getCreationTime(), QDateTime::fromString("2013-01-02 00:00:00", "yyyy-MM-dd HH:mm:ss"));
     ASSERT_EQ(candidates.at(1).getCreationTime(), QDateTime::fromString("2013-01-02 00:05:00", "yyyy-MM-dd HH:mm:ss"));
@@ -151,7 +151,7 @@ TEST_F(TwitterUserTest, GetCandidatesReturnsTweetsWithCorrectCreationTime)
 
 TEST_F(TwitterUserTest, GetCandidatesLoadsTweetProfilesCorrectely)
 {
-    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, TopicProfile);
     
     auto profile = candidates.at(0).getProfile();
     ASSERT_NEAR(profile.find("0")->second, 0.1, 0.01);
@@ -170,7 +170,7 @@ TEST_F(TwitterUserTest, GetCandidatesAsBOWLoadsTweetProfilesCorrectly)
 {
     user.loadBOWProfile(START_PROFILE, END_PROFILE);
     
-    auto candidates = user.getCandidatesWithBOWProfile(START_CANDIDATES, END_CANDIDATES);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, BOWProfile);
     
     auto profile = candidates.at(0).getProfile();
     ASSERT_NEAR(profile.find("bla")->second, 0.5, 0.01);
@@ -250,7 +250,7 @@ TEST_F(TwitterUserTest, ComputesCosineSimilarityCorrectly)
 
 TEST_F(TwitterUserTest, SortCandidatesRaisesExceptionWhenProfileNotLoaded)
 {
-    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, TopicProfile);
     
     ASSERT_THROW(user.sortCandidates(candidates, QDateTime()), ProfileNotLoadedError);
 }
@@ -259,7 +259,7 @@ TEST_F(TwitterUserTest, SortCandidatesWithRespectTheCosineSimilarityFunction)
 {
     user.loadProfile(START_PROFILE, END_PROFILE);
     
-    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, TopicProfile);
     auto sorted = user.sortCandidates(candidates, QDateTime());
     
     ASSERT_EQ(6, sorted.at(0).getTweetId());
@@ -274,7 +274,7 @@ TEST_F(TwitterUserTest, SortCandidatesApplyingSomeTopicFilter)
     
     std::map<std::string, int> topicFilter;
     topicFilter["3"] = 3600*12;
-    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, TopicProfile);
     auto sorted = user.sortCandidates(candidates, START_RETWEETS, topicFilter);
     
     ASSERT_EQ(3, sorted.size());

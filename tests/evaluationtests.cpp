@@ -21,7 +21,7 @@ protected:
     virtual void SetUp()
     {
         user.loadProfile(START_PROFILE, END_PROFILE);
-        auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES);
+        auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, TopicProfile);
         sortedCandidates = user.sortCandidates(candidates, QDateTime());
     }
     

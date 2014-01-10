@@ -86,12 +86,12 @@ const StringFloatMap& TwitterUser::getProfile() const
     return m_profile;
 }
 
-TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime& _end) const
+TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime& _end, ProfileType _profileType) const
 {
     TweetVector candidates;
     QSqlQuery query;
     query.prepare(
-        "SELECT id, topics, creation_time FROM tweet_topics WHERE user_id in (SELECT followed_id FROM relationship WHERE follower_id = :uid) "
+        "SELECT id, topics, creation_time, content FROM tweet_topics WHERE user_id in (SELECT followed_id FROM relationship WHERE follower_id = :uid) "
         "AND creation_time BETWEEN :s AND :e"
     );
     query.bindValue(":uid", static_cast<qlonglong>(m_userId));
@@ -101,29 +101,15 @@ TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime&
     
     while(query.next())
     {
-        StringFloatMap profile = BuildProfileFromString(query.value(1).toString());
-        candidates.push_back(Tweet(query.value(0).toLongLong(), query.value(2).toDateTime(), profile));
-    }
-    return candidates;
-}
-
-TweetVector TwitterUser::getCandidatesWithBOWProfile(const QDateTime& _start, const QDateTime& _end) const
-{
-    TweetVector candidates;
-    QSqlQuery query;
-    query.prepare(
-        "SELECT id, content, creation_time FROM tweet_topics WHERE user_id in (SELECT followed_id FROM relationship WHERE follower_id = :uid) "
-        "AND creation_time BETWEEN :s AND :e"
-    );
-    query.bindValue(":uid", static_cast<qlonglong>(m_userId));
-    query.bindValue(":s", _start.toString("yyyy-MM-dd HH:mm:ss"));
-    query.bindValue(":e", _end.toString("yyyy-MM-dd HH:mm:ss"));
-    query.exec();
-    
-    while(query.next())
-    {
-        StringFloatMap profile = BuildBOWProfileFromString(query.value(1).toString());
-        candidates.push_back(Tweet(query.value(0).toLongLong(), query.value(2).toDateTime(), profile));
+        switch(_profileType)
+        {
+            case TopicProfile:
+                candidates.push_back(Tweet(query.value(0).toLongLong(), query.value(2).toDateTime(), BuildProfileFromString(query.value(1).toString())));
+                break;
+            case BOWProfile:
+                candidates.push_back(Tweet(query.value(0).toLongLong(), query.value(2).toDateTime(), BuildBOWProfileFromString(query.value(3).toString())));
+                break;
+        }
     }
     return candidates;
 }
