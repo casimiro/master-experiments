@@ -15,7 +15,32 @@ QDateTime END_RETWEETS = QDateTime::fromString("2013-08-01 00:00:00", "yyyy-MM-d
 
 int CANDIDATE_PERIOD_IN_HOURS = 48;
 
-int main(int /*argc*/, char** /* argv*/) {
+void mainTopics()
+{
+    StringIntMaps topicLifeSpanMaps;
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_60"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_70"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_80"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_90"));
+    
+    Evaluation evaluation;
+    evaluation.evaluateSystem("data/users.csv", TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/results.csv", topicLifeSpanMaps);
+}
+
+void mainBOW()
+{
+    StringIntMaps topicLifeSpanMaps;
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/bow_timings_60"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/bow_timings_70"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/bow_timings_80"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/bow_timings_90"));
+    
+    Evaluation evaluation;
+    evaluation.evaluateSystem("data/users.csv", BOWProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/bow_results.csv", topicLifeSpanMaps);
+}
+
+int main(int /*argc*/, char** /* argv*/) 
+{
     QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
     db.setHostName("192.168.25.33");
     db.setDatabaseName("tweets");
@@ -28,14 +53,8 @@ int main(int /*argc*/, char** /* argv*/) {
         return -1;
     }
     
-    StringIntMaps topicLifeSpanMaps;
-    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_60"));
-    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_70"));
-    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_80"));
-    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_90"));
-    
-    Evaluation evaluation;
-    evaluation.evaluateSystem("data/users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/results.csv", topicLifeSpanMaps);
+    mainBOW();
+    //mainTopics();
     
     return 0;
 }

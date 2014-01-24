@@ -149,7 +149,9 @@ TEST_F(EvaluationTests, GetMetricsReturnsZeroValuesWhenRetweetIsNotInTheSortedLi
 
 TEST_F(EvaluationTests, EvaluateUserGeneratesAListOfCorrectMetrics)
 {
-    auto metrics = evaluation.evaluateUser(user, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS);
+    auto metricsList = evaluation.evaluateUser(user, TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS);
+    
+    auto metrics = metricsList.at(0);
     
     ASSERT_EQ(2, metrics.size()); // There are 2 retweets in the db
     
@@ -164,10 +166,16 @@ TEST_F(EvaluationTests, EvaluateUserGeneratesAListOfCorrectMetrics)
 
 TEST_F(EvaluationTests, EvaluateUserWithTopicLifeSpanFilterGeneratesAListOfCorrectMetrics)
 {
+    StringIntMaps filters;
     StringIntMap topicFilter;
     topicFilter["3"] = 12*2600;
+    filters.push_back(topicFilter);
     
-    auto metrics = evaluation.evaluateUser(user, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, topicFilter);
+    auto metricsList = evaluation.evaluateUser(user, TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, filters);
+
+    ASSERT_EQ(2, metricsList.size()); // there are two list of metrics, 1 without topics and one with the topics
+    
+    auto metrics = metricsList.at(1);
     
     ASSERT_EQ(2, metrics.size()); // There are 2 retweets in the db
     
@@ -183,7 +191,7 @@ TEST_F(EvaluationTests, EvaluateUserWithTopicLifeSpanFilterGeneratesAListOfCorre
 TEST_F(EvaluationTests, EvaluateSystemGeneratesAFileWithTheMetricsList)
 {
     TwitterUserVector users{user};
-    evaluation.evaluateSystem(users, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
+    evaluation.evaluateSystem(users, TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
     
     std::ifstream file(RESULT_SYSTEM_FILE_NAME);
     std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -196,7 +204,7 @@ TEST_F(EvaluationTests, EvaluateSystemGeneratesAFileWithTheMetricsList)
 
 TEST_F(EvaluationTests, EvaluateSystemUsingUsersFileGeneratesAFileWithTheMetricsList)
 {
-    evaluation.evaluateSystem("users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
+    evaluation.evaluateSystem("users.csv", TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
     
     std::ifstream file(RESULT_SYSTEM_FILE_NAME);
     std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -210,7 +218,7 @@ TEST_F(EvaluationTests, EvaluateSystemUsingUsersFileGeneratesAFileWithTheMetrics
 TEST_F(EvaluationTests, EvaluateSystemIsNotAffectedByAEmptyProfileUser)
 {
     TwitterUserVector users{TwitterUser(EMPTY_PROFILE_USER_ID), user};
-    evaluation.evaluateSystem(users, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
+    evaluation.evaluateSystem(users, TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME);
     
     std::ifstream file(RESULT_SYSTEM_FILE_NAME);
     std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -229,7 +237,7 @@ TEST_F(EvaluationTests, EvaluateSystemWithMultipleTopicLifeSpanFilters)
     topicFilters.at(0).insert(std::make_pair("3", 12*2600));
     topicFilters.at(1).insert(std::make_pair("2", 12*2600));
     
-    evaluation.evaluateSystem(users, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME, topicFilters);
+    evaluation.evaluateSystem(users, TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME, topicFilters);
     
     std::ifstream file(RESULT_SYSTEM_FILE_NAME);
     std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
@@ -248,7 +256,7 @@ TEST_F(EvaluationTests, EvaluateSystemUsingUsersFileWithMultipleTopicLifeSpanFil
     topicFilters.at(0).insert(std::make_pair("3", 12*2600));
     topicFilters.at(1).insert(std::make_pair("2", 12*2600));
     
-    evaluation.evaluateSystem("users.csv", START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME, topicFilters);
+    evaluation.evaluateSystem("users.csv", TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME, topicFilters);
     
     std::ifstream file(RESULT_SYSTEM_FILE_NAME);
     std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());

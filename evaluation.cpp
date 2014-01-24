@@ -28,28 +28,40 @@ Metrics Evaluation::getMetrics(const TweetVector& _sortedCandidates, const Tweet
     return Metrics(pos);
 }
 
-MetricsVector Evaluation::evaluateUser(TwitterUser& _user, 
+MetricsVectors Evaluation::evaluateUser(TwitterUser& _user, 
+                                       ProfileType _profileType,
                                        const QDateTime& _startProfile, 
                                        const QDateTime& _endProfile, 
                                        const QDateTime& _startRetweets, 
                                        const QDateTime& _endRetweets, 
                                        int _candidatePeriodInHours,
-                                       const StringIntMap& _topicLifeSpanMap)
+                                       const StringIntMaps& _topicLifeSpanMaps)
 {
-    MetricsVector metrics;
+    MetricsVectors metricsVectors;
+    metricsVectors.push_back(MetricsVector());
+    for(auto topicLifeMap : _topicLifeSpanMaps)
+        metricsVectors.push_back(MetricsVector());
     
-    _user.loadProfile(_startProfile, _endProfile);
+    if(_profileType == TopicProfile)
+        _user.loadProfile(_startProfile, _endProfile);
+    else if(_profileType == BOWProfile)
+        _user.loadBOWProfile(_startProfile, _endProfile);
+    
     auto retweets = _user.getRetweets(_startRetweets, _endRetweets);
     for(auto retweet : retweets)
     {
         auto start = retweet.getCreationTime().addSecs(-_candidatePeriodInHours*3600);
-        auto candidates = _user.getCandidates(start, retweet.getCreationTime(), TopicProfile);
-        metrics.push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime(), _topicLifeSpanMap), retweet));
+        auto candidates = _user.getCandidates(start, retweet.getCreationTime(), _profileType);
+        
+        metricsVectors.at(0).push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime()), retweet));
+        for(std::size_t i = 0; i < _topicLifeSpanMaps.size(); i++)
+            metricsVectors.at(i+1).push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime(), _topicLifeSpanMaps.at(i)), retweet));
     }
-    return metrics;
+    return metricsVectors;
 }
 
 void Evaluation::evaluateSystem(const TwitterUserVector& _users,
+                                ProfileType _profileType,
                                 const QDateTime& _startProfile, 
                                 const QDateTime& _endProfile, 
                                 const QDateTime& _startRetweets, 
@@ -62,11 +74,7 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
     for(auto user : _users)
     {
         try {
-            auto metricsList = std::vector<MetricsVector>();
-            metricsList.push_back(evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours));
-            
-            for(auto _topicLifeSpanMap : _topicLifeSpanMaps)
-                metricsList.push_back(evaluateUser(user, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _topicLifeSpanMap));
+            auto metricsList = evaluateUser(user, _profileType, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _topicLifeSpanMaps);
             
             for(std::size_t i = 0; i < metricsList.at(0).size(); i++)
             {
@@ -83,7 +91,8 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
     }
 }
 
-void Evaluation::evaluateSystem(const std::string& _usersFile, 
+void Evaluation::evaluateSystem(const std::string& _usersFile,
+                                ProfileType _profileType,
                                 const QDateTime& _startProfile, 
                                 const QDateTime& _endProfile, 
                                 const QDateTime& _startRetweets, 
@@ -102,7 +111,7 @@ void Evaluation::evaluateSystem(const std::string& _usersFile,
         users.push_back(TwitterUser(userId));
     }
     
-    evaluateSystem(users, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _outFileName, _topicLifeSpanMaps);
+    evaluateSystem(users, _profileType, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _outFileName, _topicLifeSpanMaps);
 }
 
 }

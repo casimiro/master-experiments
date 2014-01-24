@@ -25,6 +25,9 @@ long int TwitterUser::getUserId() const
 
 void TwitterUser::loadProfile(const QDateTime& _start, const QDateTime& _end)
 {
+    if(!m_profile.empty())
+        return;
+    
     QSqlQuery query;
     query.prepare("SELECT topics FROM tweet_topics WHERE user_id=:uid AND creation_time >= :s AND creation_time <= :e"); 
     query.bindValue(":uid", static_cast<qlonglong>(m_userId));

@@ -7,6 +7,8 @@
 
 namespace casimiro {
 
+typedef std::vector<MetricsVector> MetricsVectors;
+
 class Evaluation {
 public:
     Evaluation();
@@ -14,15 +16,17 @@ public:
     
     virtual Metrics getMetrics(const TweetVector& _sortedCandidates, const Tweet& _retweet) const;
     
-    virtual MetricsVector evaluateUser(TwitterUser& _user, 
+    virtual MetricsVectors evaluateUser(TwitterUser& _user, 
+                                       ProfileType _profileType,
                                        const QDateTime& _startProfile, 
                                        const QDateTime& _endProfile, 
                                        const QDateTime& _startRetweets,
                                        const QDateTime& _endRetweets,
                                        int _candidatePeriodInHours,
-                                       const StringIntMap& _topicLifeSpanMap = StringIntMap());
+                                       const StringIntMaps& _topicLifeSpanMaps = StringIntMaps());
     
-    virtual void evaluateSystem(const TwitterUserVector& _users, 
+    virtual void evaluateSystem(const TwitterUserVector& _users,
+                                ProfileType _profileType,
                                 const QDateTime& _startProfile, 
                                 const QDateTime& _endProfile, 
                                 const QDateTime& _startRetweets,
@@ -32,6 +36,7 @@ public:
                                 const StringIntMaps& _topicLifeSpanMaps = StringIntMaps());
     
     virtual void evaluateSystem(const std::string& _usersFile, 
+                                ProfileType _profileType,
                                 const QDateTime& _startProfile, 
                                 const QDateTime& _endProfile, 
                                 const QDateTime& _startRetweets,
