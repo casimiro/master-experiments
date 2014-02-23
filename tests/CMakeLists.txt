@@ -2,9 +2,9 @@ find_library(LIBPTHREAD NAMES pthread)
 
 include_directories($ENV{GMOCK_HOME}/include $ENV{GMOCK_HOME}/gtest/include ../ ${SOCI_INCLUDE_DIRS})
 
-link_directories($ENV{GMOCK_HOME}/build $ENV{GMOCK_HOME}/gtest/build)
+link_directories($ENV{GMOCK_HOME}/build $ENV{GMOCK_HOME}/gtest/build /usr/lib)
 
-add_executable(tests utilstests.cpp evaluationtests.cpp twitterusertests.cpp main.cpp ../twitteruser.cpp ../tweet.cpp ../evaluation.cpp)
+add_executable(tests utilstests.cpp evaluationtests.cpp twitterusertests.cpp main.cpp ../twitteruser.cpp ../tweet.cpp ../svm.cpp ../evaluation.cpp)
 
 enable_testing()
 

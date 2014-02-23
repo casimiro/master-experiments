@@ -8,6 +8,10 @@
 
 namespace casimiro {
 
+using std::map;
+
+typedef struct svm_node SVMNode;
+
 TwitterUser::TwitterUser(long int _userId):
     m_userId(_userId)
 {
@@ -15,7 +19,8 @@ TwitterUser::TwitterUser(long int _userId):
 
 TwitterUser::~TwitterUser()
 {
-
+    if(m_svmModel != nullptr)
+        svm_free_and_destroy_model(&m_svmModel);
 }
 
 long int TwitterUser::getUserId() const
@@ -37,7 +42,7 @@ void TwitterUser::loadProfile(const QDateTime& _start, const QDateTime& _end)
     
     float val = 0;
     
-    std::vector<std::string> pairs;
+    vector<std::string> pairs;
     size_t colonPos;
     std::string topic;
     
@@ -57,6 +62,13 @@ void TwitterUser::loadProfile(const QDateTime& _start, const QDateTime& _end)
     
 }
 
+void TwitterUser::loadSVMProfile()
+{
+    std::stringstream ss;
+    ss << "data/" << m_userId << "_model.txt";
+    m_svmModel = svm_load_model(ss.str().c_str());
+}
+
 void TwitterUser::loadBOWProfile(const QDateTime& _start, const QDateTime& _end)
 {
     QSqlQuery query;
@@ -70,7 +82,7 @@ void TwitterUser::loadBOWProfile(const QDateTime& _start, const QDateTime& _end)
     
     while(query.next())
     {
-        std::vector<std::string> tokens;
+        vector<std::string> tokens;
         auto content = query.value(0).toString().toStdString();
         boost::split(tokens, content, boost::is_any_of(" "));
         for (auto token : tokens)
@@ -173,13 +185,62 @@ float TwitterUser::cosineSimilarity(const StringFloatMap& _profile) const
     return dot / (aNorm * bNorm);
 }
 
+vector<SVMNode> NodeFromCandidate(const Tweet &_candidate)
+{
+    vector<SVMNode> nodes;
+    for(auto pair : _candidate.getProfile())
+    {
+        SVMNode node;
+        node.index = atoi(pair.first.c_str());
+        node.value = pair.second;
+        nodes.push_back(node);
+    }
+    SVMNode node;
+    node.index = 0;
+    node.value = 0.0;
+    
+    nodes.push_back(node);
+    
+    return nodes;
+}
+
+TweetVector TwitterUser::svmSortCandidates(const TweetVector& _candidates, const QDateTime& _recommendationTime, const StringIntMap& _topicLifeSpan) const
+{
+    if(m_svmModel == nullptr)
+        throw ProfileNotLoadedError();
+    
+    TweetVector sorted;
+    map<float, vector<int>> aux;
+    int i = 0;
+    
+    for(auto candidate : _candidates)
+    {
+        if(!CandidateHasOldTopics(candidate, _topicLifeSpan, _recommendationTime))
+        {
+            auto candidateNodes = NodeFromCandidate(candidate);
+            auto likelihood = svm_predict(m_svmModel, candidateNodes.data());
+            
+            if(aux.find(likelihood) == aux.end())
+                aux[likelihood] = vector<int>();
+            aux.find(likelihood)->second.push_back(i);
+        }
+        i++;
+    }
+    
+    for(auto it = aux.rbegin(); it != aux.crend(); it++)
+        for(auto index : it->second)
+            sorted.push_back(_candidates.at(index));
+    
+    return sorted;
+}
+
 TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates, const QDateTime& _recommendationTime, const StringIntMap& _topicLifeSpan) const
 {
     if(m_profile.empty())
         throw ProfileNotLoadedError();
     
     TweetVector sorted;
-    std::map<float, std::vector<int>> aux;
+    map<float, vector<int>> aux;
     int i = 0;
     
     for(auto candidate : _candidates)
@@ -188,7 +249,7 @@ TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates, const QD
         {
             auto sim = cosineSimilarity(candidate.getProfile());
             if(aux.find(sim) == aux.end())
-                aux[sim] = std::vector<int>();
+                aux[sim] = vector<int>();
             aux.find(sim)->second.push_back(i);
         }
         i++;

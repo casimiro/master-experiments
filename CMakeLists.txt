@@ -18,7 +18,7 @@ endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(master-experiments evaluation.cpp tweet.cpp twitteruser.cpp main.cpp)
+add_executable(master-experiments evaluation.cpp tweet.cpp twitteruser.cpp svm.cpp main.cpp)
 
 target_link_libraries(master-experiments Qt5::Sql Qt5::Core ${Boost_LIBRARIES})
 
