@@ -39,6 +39,20 @@ void mainBOW()
     evaluation.evaluateSystem("data/users.csv", BOWProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/bow_results.csv", topicLifeSpanMaps);
 }
 
+void mainSVM()
+{
+    StringIntMaps topicLifeSpanMaps;
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_60"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_70"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_80"));
+    topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_90"));
+    
+    Evaluation evaluation;
+    evaluation.evaluateSystem("data/users.csv", SVMProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/svm_results.csv", topicLifeSpanMaps);
+}
+
+
+
 int main(int /*argc*/, char** /* argv*/) 
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
@@ -53,8 +67,9 @@ int main(int /*argc*/, char** /* argv*/)
         return -1;
     }
     
-    mainBOW();
+    //mainBOW();
     //mainTopics();
+    mainSVM();
     
     return 0;
 }

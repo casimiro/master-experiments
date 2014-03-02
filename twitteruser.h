@@ -11,10 +11,12 @@
 namespace casimiro {
 
 using std::vector;
+using std::string;
 
 enum ProfileType {
     TopicProfile,
-    BOWProfile
+    BOWProfile,
+    SVMProfile
 };
 
 class TwitterUser;
@@ -28,7 +30,7 @@ public:
     
     virtual long getUserId() const;
     
-    virtual void loadSVMProfile();
+    virtual void loadSVMProfile(const string &_modelPath);
     
     virtual void loadProfile(const QDateTime& _start, const QDateTime& _end);
     
@@ -41,8 +43,6 @@ public:
     virtual TweetVector getRetweets(const QDateTime& _start, const QDateTime& _end) const;
     
     virtual float cosineSimilarity(const StringFloatMap& _profile) const;
-    
-    virtual TweetVector svmSortCandidates(const TweetVector& _candidates, const QDateTime& _recommendationTime, const StringIntMap& _topicLifeSpan = StringIntMap()) const;
     
     virtual TweetVector sortCandidates(const TweetVector& _candidates, const QDateTime& _recommendationTime, const StringIntMap& _topicLifeSpan = StringIntMap()) const;
     

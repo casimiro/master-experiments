@@ -62,11 +62,9 @@ void TwitterUser::loadProfile(const QDateTime& _start, const QDateTime& _end)
     
 }
 
-void TwitterUser::loadSVMProfile()
+void TwitterUser::loadSVMProfile(const string &_modelPath)
 {
-    std::stringstream ss;
-    ss << "data/" << m_userId << "_model.txt";
-    m_svmModel = svm_load_model(ss.str().c_str());
+    m_svmModel = svm_load_model(_modelPath.c_str());
 }
 
 void TwitterUser::loadBOWProfile(const QDateTime& _start, const QDateTime& _end)
@@ -118,6 +116,7 @@ TweetVector TwitterUser::getCandidates(const QDateTime& _start, const QDateTime&
     {
         switch(_profileType)
         {
+            case SVMProfile:
             case TopicProfile:
                 candidates.push_back(Tweet(query.value(0).toLongLong(), query.value(2).toDateTime(), BuildProfileFromString(query.value(1).toString())));
                 break;
@@ -191,52 +190,20 @@ vector<SVMNode> NodeFromCandidate(const Tweet &_candidate)
     for(auto pair : _candidate.getProfile())
     {
         SVMNode node;
-        node.index = atoi(pair.first.c_str());
+        node.index = atoi(pair.first.c_str()) + 1;
         node.value = pair.second;
         nodes.push_back(node);
     }
     SVMNode node;
-    node.index = 0;
-    node.value = 0.0;
-    
+    node.index = -1;
     nodes.push_back(node);
     
     return nodes;
 }
 
-TweetVector TwitterUser::svmSortCandidates(const TweetVector& _candidates, const QDateTime& _recommendationTime, const StringIntMap& _topicLifeSpan) const
-{
-    if(m_svmModel == nullptr)
-        throw ProfileNotLoadedError();
-    
-    TweetVector sorted;
-    map<float, vector<int>> aux;
-    int i = 0;
-    
-    for(auto candidate : _candidates)
-    {
-        if(!CandidateHasOldTopics(candidate, _topicLifeSpan, _recommendationTime))
-        {
-            auto candidateNodes = NodeFromCandidate(candidate);
-            auto likelihood = svm_predict(m_svmModel, candidateNodes.data());
-            
-            if(aux.find(likelihood) == aux.end())
-                aux[likelihood] = vector<int>();
-            aux.find(likelihood)->second.push_back(i);
-        }
-        i++;
-    }
-    
-    for(auto it = aux.rbegin(); it != aux.crend(); it++)
-        for(auto index : it->second)
-            sorted.push_back(_candidates.at(index));
-    
-    return sorted;
-}
-
 TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates, const QDateTime& _recommendationTime, const StringIntMap& _topicLifeSpan) const
 {
-    if(m_profile.empty())
+    if(m_profile.empty() && m_svmModel == nullptr)
         throw ProfileNotLoadedError();
     
     TweetVector sorted;
@@ -247,7 +214,15 @@ TweetVector TwitterUser::sortCandidates(const TweetVector& _candidates, const QD
     {
         if(!CandidateHasOldTopics(candidate, _topicLifeSpan, _recommendationTime))
         {
-            auto sim = cosineSimilarity(candidate.getProfile());
+            double sim;
+            if(m_svmModel != nullptr)
+            {
+                auto candidateNodes = NodeFromCandidate(candidate);
+                sim = svm_predict(m_svmModel, candidateNodes.data());
+            }
+            else
+                sim = cosineSimilarity(candidate.getProfile());
+            
             if(aux.find(sim) == aux.end())
                 aux[sim] = vector<int>();
             aux.find(sim)->second.push_back(i);

@@ -21,3 +21,4 @@ add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/ex
 add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/expected_result_filtered.csv ${CMAKE_BINARY_DIR}/tests)
 add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/users.csv ${CMAKE_BINARY_DIR}/tests)
 add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/topic_timings ${CMAKE_BINARY_DIR}/tests)
+add_custom_command(TARGET tests COMMAND cp ${CMAKE_SOURCE_DIR}/tests/fixtures/example_svm_model.txt ${CMAKE_BINARY_DIR}/tests)

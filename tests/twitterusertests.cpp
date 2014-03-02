@@ -282,3 +282,16 @@ TEST_F(TwitterUserTest, SortCandidatesApplyingSomeTopicFilter)
     ASSERT_EQ(7, sorted.at(1).getTweetId());
     ASSERT_EQ(10, sorted.at(2).getTweetId());
 }
+
+TEST_F(TwitterUserTest, SVMSortCandidates)
+{
+    user.loadSVMProfile("example_svm_model.txt");
+    
+    auto candidates = user.getCandidates(START_CANDIDATES, END_CANDIDATES, TopicProfile);
+    auto sorted = user.sortCandidates(candidates, START_RETWEETS);
+    
+    ASSERT_EQ(4, sorted.size());
+    ASSERT_EQ(10, sorted.at(0).getTweetId());
+    ASSERT_EQ(7, sorted.at(1).getTweetId());
+    ASSERT_EQ(9, sorted.at(2).getTweetId());
+}

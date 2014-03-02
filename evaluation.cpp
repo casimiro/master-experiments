@@ -46,6 +46,12 @@ MetricsVectors Evaluation::evaluateUser(TwitterUser& _user,
         _user.loadProfile(_startProfile, _endProfile);
     else if(_profileType == BOWProfile)
         _user.loadBOWProfile(_startProfile, _endProfile);
+    else if(_profileType == SVMProfile)
+    {
+        std::stringstream ss;
+        ss << "data/models/" << _user.getUserId() << "_model.txt";
+        _user.loadSVMProfile(ss.str());
+    }
     
     auto retweets = _user.getRetweets(_startRetweets, _endRetweets);
     for(auto retweet : retweets)
