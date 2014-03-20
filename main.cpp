@@ -17,6 +17,7 @@ int CANDIDATE_PERIOD_IN_HOURS = 48;
 
 void mainTopics()
 {
+    std::cout << "Evaluating regular topics system" << std::endl;
     StringIntMaps topicLifeSpanMaps;
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_60"));
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_70"));
@@ -29,6 +30,7 @@ void mainTopics()
 
 void mainBOW()
 {
+    std::cout << "Evaluating BOW system" << std::endl;
     StringIntMaps topicLifeSpanMaps;
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/bow_timings_60"));
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/bow_timings_70"));
@@ -41,6 +43,7 @@ void mainBOW()
 
 void mainSVM()
 {
+    std::cout << "Evaluating SVM system" << std::endl;
     StringIntMaps topicLifeSpanMaps;
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_60"));
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_70"));
