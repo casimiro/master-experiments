@@ -267,3 +267,29 @@ TEST_F(EvaluationTests, EvaluateSystemUsingUsersFileWithMultipleTopicLifeSpanFil
     ASSERT_EQ(expectedFileContent, fileContent);
     
 }
+
+TEST_F(EvaluationTests, EvaluateSystemIgnoringRetweetsWithoutTimedTopics)
+{
+    QSqlQuery query;
+    // this retweet should be not considered
+    query.exec("INSERT INTO tweet_topics VALUES (20,'2013-01-03 00:01:00',2256, 28,'10:0.1 12:0.5','bla usp')");
+
+    TwitterUserVector users{user};
+    StringIntMaps topicFilters{StringIntMap(), StringIntMap()};
+        
+    topicFilters.at(0).insert(std::make_pair("2", 112*2600));
+    topicFilters.at(0).insert(std::make_pair("3", 12*2600));
+    topicFilters.at(1).insert(std::make_pair("2", 12*2600));
+    topicFilters.at(1).insert(std::make_pair("3", 112*2600));
+    
+    bool ignoreRetweetsWithoutTimedTopics = true;
+    evaluation.evaluateSystem(users, TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, HOURS, RESULT_SYSTEM_FILE_NAME, topicFilters, ignoreRetweetsWithoutTimedTopics);
+    
+    std::ifstream file(RESULT_SYSTEM_FILE_NAME);
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    
+    std::ifstream expectedFile("expected_result_filtered.csv");
+    std::string expectedFileContent((std::istreambuf_iterator<char>(expectedFile)), std::istreambuf_iterator<char>());
+    
+    ASSERT_EQ(expectedFileContent, fileContent);
+}

@@ -25,7 +25,17 @@ void mainTopics()
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_90"));
     
     Evaluation evaluation;
-    evaluation.evaluateSystem("data/users.csv", TopicProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/results.csv", topicLifeSpanMaps);
+    evaluation.evaluateSystem(
+        "data/users.csv", 
+        TopicProfile, 
+        START_PROFILE, 
+        END_PROFILE, 
+        START_RETWEETS, 
+        END_RETWEETS, 
+        CANDIDATE_PERIOD_IN_HOURS, 
+        "data/results.csv", 
+        topicLifeSpanMaps
+    );
 }
 
 void mainBOW()
@@ -37,8 +47,20 @@ void mainBOW()
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/bow_timings_80"));
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/bow_timings_90"));
     
+    bool ignoreRetweetsWithNoTimedTopic = true;
     Evaluation evaluation;
-    evaluation.evaluateSystem("data/users.csv", BOWProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/bow_results.csv", topicLifeSpanMaps);
+    evaluation.evaluateSystem(
+        "data/users.csv", 
+        BOWProfile, 
+        START_PROFILE, 
+        END_PROFILE, 
+        START_RETWEETS, 
+        END_RETWEETS, 
+        CANDIDATE_PERIOD_IN_HOURS, 
+        "data/bow_results.csv", 
+        topicLifeSpanMaps, 
+        ignoreRetweetsWithNoTimedTopic
+    );
 }
 
 void mainSVM()
@@ -51,7 +73,17 @@ void mainSVM()
     topicLifeSpanMaps.push_back(BuildTopicLifeSpanMapFromFile("data/timings_90"));
     
     Evaluation evaluation;
-    evaluation.evaluateSystem("data/users.csv", SVMProfile, START_PROFILE, END_PROFILE, START_RETWEETS, END_RETWEETS, CANDIDATE_PERIOD_IN_HOURS, "data/svm_results.csv", topicLifeSpanMaps);
+    evaluation.evaluateSystem(
+        "data/users.csv", 
+        SVMProfile, 
+        START_PROFILE, 
+        END_PROFILE, 
+        START_RETWEETS, 
+        END_RETWEETS, 
+        CANDIDATE_PERIOD_IN_HOURS, 
+        "data/svm_results.csv", 
+        topicLifeSpanMaps
+    );
 }
 
 

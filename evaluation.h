@@ -23,7 +23,8 @@ public:
                                        const QDateTime& _startRetweets,
                                        const QDateTime& _endRetweets,
                                        int _candidatePeriodInHours,
-                                       const StringIntMaps& _topicLifeSpanMaps = StringIntMaps());
+                                       const StringIntMaps& _topicLifeSpanMaps = StringIntMaps(),
+                                       bool _ignoreRetweetsWithoutTimedTopics = false);
     
     virtual void evaluateSystem(const TwitterUserVector& _users,
                                 ProfileType _profileType,
@@ -33,7 +34,8 @@ public:
                                 const QDateTime& _endRetweets,
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
-                                const StringIntMaps& _topicLifeSpanMaps = StringIntMaps());
+                                const StringIntMaps& _topicLifeSpanMaps = StringIntMaps(),
+                                bool _ignoreRetweetsWithoutTimedTopics = false);
     
     virtual void evaluateSystem(const std::string& _usersFile, 
                                 ProfileType _profileType,
@@ -43,7 +45,8 @@ public:
                                 const QDateTime& _endRetweets,
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
-                                const StringIntMaps& _topicLifeSpanMaps = StringIntMaps());
+                                const StringIntMaps& _topicLifeSpanMaps = StringIntMaps(),
+                                bool _ignoreRetweetsWithoutTimedTopics = false);
 };
 
 }

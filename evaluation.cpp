@@ -28,6 +28,18 @@ Metrics Evaluation::getMetrics(const TweetVector& _sortedCandidates, const Tweet
     return Metrics(pos);
 }
 
+bool RetweetHasAnyTimedTopic(const StringIntMaps& _topicLifeSpanMaps, const Tweet& _retweet)
+{
+    if(_topicLifeSpanMaps.size() == 0)
+        return true; // if there is no timed topic in the system just return true
+        
+    auto topicLifeSpanMap = _topicLifeSpanMaps.at(0);
+    for(auto pair : _retweet.getProfile())
+        if(topicLifeSpanMap.count(pair.first) > 0)
+            return true;
+    return false;
+}
+
 MetricsVectors Evaluation::evaluateUser(TwitterUser& _user, 
                                        ProfileType _profileType,
                                        const QDateTime& _startProfile, 
@@ -35,7 +47,8 @@ MetricsVectors Evaluation::evaluateUser(TwitterUser& _user,
                                        const QDateTime& _startRetweets, 
                                        const QDateTime& _endRetweets, 
                                        int _candidatePeriodInHours,
-                                       const StringIntMaps& _topicLifeSpanMaps)
+                                       const StringIntMaps& _topicLifeSpanMaps,
+                                       bool _ignoreRetweetsWithoutTimedTopics)
 {
     MetricsVectors metricsVectors;
     metricsVectors.push_back(MetricsVector());
@@ -56,10 +69,17 @@ MetricsVectors Evaluation::evaluateUser(TwitterUser& _user,
     auto retweets = _user.getRetweets(_startRetweets, _endRetweets);
     for(auto retweet : retweets)
     {
+        // discards retweets that have no topic with life cycle.
+        // this happens when evaluating BOW system when there is
+        // only 3 topics with life cycle: dilma, futebol and transito
+        if(_ignoreRetweetsWithoutTimedTopics && !RetweetHasAnyTimedTopic(_topicLifeSpanMaps, retweet))
+            continue;
+
         auto start = retweet.getCreationTime().addSecs(-_candidatePeriodInHours*3600);
         auto candidates = _user.getCandidates(start, retweet.getCreationTime(), _profileType);
         
         metricsVectors.at(0).push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime()), retweet));
+
         for(std::size_t i = 0; i < _topicLifeSpanMaps.size(); i++)
             metricsVectors.at(i+1).push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime(), _topicLifeSpanMaps.at(i)), retweet));
     }
@@ -74,13 +94,24 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
                                 const QDateTime& _endRetweets, 
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
-                                const StringIntMaps& _topicLifeSpanMaps)
+                                const StringIntMaps& _topicLifeSpanMaps,
+                                bool _ignoreRetweetsWithoutTimedTopics)
 {
     std::ofstream file(_outFileName);
     for(auto user : _users)
     {
         try {
-            auto metricsList = evaluateUser(user, _profileType, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _topicLifeSpanMaps);
+            auto metricsList = evaluateUser(
+                user, 
+                _profileType, 
+                _startProfile, 
+                _endProfile, 
+                _startRetweets, 
+                _endRetweets, 
+                _candidatePeriodInHours, 
+                _topicLifeSpanMaps, 
+                _ignoreRetweetsWithoutTimedTopics
+            );
             
             for(std::size_t i = 0; i < metricsList.at(0).size(); i++)
             {
@@ -105,7 +136,8 @@ void Evaluation::evaluateSystem(const std::string& _usersFile,
                                 const QDateTime& _endRetweets, 
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
-                                const StringIntMaps& _topicLifeSpanMaps)
+                                const StringIntMaps& _topicLifeSpanMaps,
+                                bool _ignoreRetweetsWithoutTimedTopics)
 {
     TwitterUserVector users;
     std::ifstream file(_usersFile);
@@ -117,7 +149,18 @@ void Evaluation::evaluateSystem(const std::string& _usersFile,
         users.push_back(TwitterUser(userId));
     }
     
-    evaluateSystem(users, _profileType, _startProfile, _endProfile, _startRetweets, _endRetweets, _candidatePeriodInHours, _outFileName, _topicLifeSpanMaps);
+    evaluateSystem(
+        users, 
+        _profileType, 
+        _startProfile, 
+        _endProfile, 
+        _startRetweets, 
+        _endRetweets, 
+        _candidatePeriodInHours, 
+        _outFileName, 
+        _topicLifeSpanMaps, 
+        _ignoreRetweetsWithoutTimedTopics
+    );
 }
 
 }
