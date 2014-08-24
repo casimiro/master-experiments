@@ -1,6 +1,9 @@
 #include "evaluation.h"
 #include <fstream>
 #include <iostream>
+#include <QSql>
+#include <QSqlQuery>
+#include <QVariant>
 
 namespace casimiro {
 
@@ -40,20 +43,49 @@ bool RetweetHasAnyTimedTopic(const StringIntMaps& _topicLifeSpanMaps, const Twee
     return false;
 }
 
-MetricsVectors Evaluation::evaluateUser(TwitterUser& _user, 
-                                       ProfileType _profileType,
-                                       const QDateTime& _startProfile, 
-                                       const QDateTime& _endProfile, 
-                                       const QDateTime& _startRetweets, 
-                                       const QDateTime& _endRetweets, 
-                                       int _candidatePeriodInHours,
-                                       const StringIntMaps& _topicLifeSpanMaps,
-                                       bool _ignoreRetweetsWithoutTimedTopics)
+std::map<int, StringIntMap> LoadUserTopicLifeSpanMaps(const TwitterUser& _user, ProfileType _profileType)
+{
+    std::map<int, StringIntMap> aux;
+    QSqlQuery query;
+    if(_profileType == BOWProfile)
+        query.prepare("SELECT word, normal_area, word_timing FROM user_word_timing WHERE user_id = :uid");
+    else
+        query.prepare("SELECT topic, normal_area, topic_timing FROM user_topic_timing WHERE user_id = :uid");
+    query.bindValue(":uid", static_cast<qlonglong>(_user.getUserId()));
+    query.exec();
+    
+    while(query.next())
+    {
+        auto topic = query.value(0).toString().toStdString();
+        auto normalArea = (query.value(1).toInt() / 10) - 1;
+        auto topicTiming = query.value(2).toInt();
+        
+        if(aux.find(normalArea) == aux.end())
+            aux.insert(std::make_pair(normalArea, StringIntMap()));
+        
+        aux.find(normalArea)->second.insert(std::make_pair(topic, topicTiming));
+    }
+    
+    return aux;
+}
+
+MetricsVectors Evaluation::evaluateUser(TwitterUser& _user,
+                                        ProfileType _profileType,
+                                        const QDateTime& _startProfile, 
+                                        const QDateTime& _endProfile, 
+                                        const QDateTime& _startRetweets, 
+                                        const QDateTime& _endRetweets, 
+                                        int _candidatePeriodInHours,
+                                        const StringIntMaps& _topicLifeSpanMaps,
+                                        bool _ignoreRetweetsWithoutTimedTopics,
+                                        bool _usePersonalisedLifeSpanMaps)
 {
     MetricsVectors metricsVectors;
     metricsVectors.push_back(MetricsVector());
     for(auto topicLifeMap : _topicLifeSpanMaps)
         metricsVectors.push_back(MetricsVector());
+    
+    auto userTopicLifeSpanMaps = LoadUserTopicLifeSpanMaps(_user, _profileType);
     
     if(_profileType == TopicProfile)
         _user.loadProfile(_startProfile, _endProfile);
@@ -81,7 +113,15 @@ MetricsVectors Evaluation::evaluateUser(TwitterUser& _user,
         metricsVectors.at(0).push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime()), retweet));
 
         for(std::size_t i = 0; i < _topicLifeSpanMaps.size(); i++)
-            metricsVectors.at(i+1).push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime(), _topicLifeSpanMaps.at(i)), retweet));
+        {
+            if(_usePersonalisedLifeSpanMaps && (userTopicLifeSpanMaps.find(i) != userTopicLifeSpanMaps.end()))
+            {
+                auto mapa = userTopicLifeSpanMaps[i];
+                metricsVectors.at(i+1).push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime(), mapa), retweet));
+            }
+            else
+                metricsVectors.at(i+1).push_back(getMetrics(_user.sortCandidates(candidates, retweet.getCreationTime(), _topicLifeSpanMaps.at(i)), retweet));            
+        }
     }
     return metricsVectors;
 }
@@ -95,9 +135,10 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
                                 const StringIntMaps& _topicLifeSpanMaps,
-                                bool _ignoreRetweetsWithoutTimedTopics)
+                                bool _ignoreRetweetsWithoutTimedTopics,
+                                bool _usePersonalisedLifeSpanMaps)
 {
-    std::ofstream file(_outFileName);
+    std::ofstream file(_outFileName, std::ios::app);
     for(auto user : _users)
     {
         try {
@@ -110,7 +151,8 @@ void Evaluation::evaluateSystem(const TwitterUserVector& _users,
                 _endRetweets, 
                 _candidatePeriodInHours, 
                 _topicLifeSpanMaps, 
-                _ignoreRetweetsWithoutTimedTopics
+                _ignoreRetweetsWithoutTimedTopics,
+                _usePersonalisedLifeSpanMaps
             );
             
             for(std::size_t i = 0; i < metricsList.at(0).size(); i++)
@@ -137,7 +179,8 @@ void Evaluation::evaluateSystem(const std::string& _usersFile,
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
                                 const StringIntMaps& _topicLifeSpanMaps,
-                                bool _ignoreRetweetsWithoutTimedTopics)
+                                bool _ignoreRetweetsWithoutTimedTopics,
+                                bool _usePersonalisedLifeSpanMaps)
 {
     TwitterUserVector users;
     std::ifstream file(_usersFile);
@@ -159,7 +202,8 @@ void Evaluation::evaluateSystem(const std::string& _usersFile,
         _candidatePeriodInHours, 
         _outFileName, 
         _topicLifeSpanMaps, 
-        _ignoreRetweetsWithoutTimedTopics
+        _ignoreRetweetsWithoutTimedTopics,
+        _usePersonalisedLifeSpanMaps
     );
 }
 

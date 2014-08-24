@@ -17,14 +17,15 @@ public:
     virtual Metrics getMetrics(const TweetVector& _sortedCandidates, const Tweet& _retweet) const;
     
     virtual MetricsVectors evaluateUser(TwitterUser& _user, 
-                                       ProfileType _profileType,
-                                       const QDateTime& _startProfile, 
-                                       const QDateTime& _endProfile, 
-                                       const QDateTime& _startRetweets,
-                                       const QDateTime& _endRetweets,
-                                       int _candidatePeriodInHours,
-                                       const StringIntMaps& _topicLifeSpanMaps = StringIntMaps(),
-                                       bool _ignoreRetweetsWithoutTimedTopics = false);
+                                ProfileType _profileType,
+                                const QDateTime& _startProfile, 
+                                const QDateTime& _endProfile, 
+                                const QDateTime& _startRetweets,
+                                const QDateTime& _endRetweets,
+                                int _candidatePeriodInHours,
+                                const StringIntMaps& _topicLifeSpanMaps = StringIntMaps(),
+                                bool _ignoreRetweetsWithoutTimedTopics = false,
+                                bool _usePersonalisedLifeSpanMaps = false);
     
     virtual void evaluateSystem(const TwitterUserVector& _users,
                                 ProfileType _profileType,
@@ -35,7 +36,8 @@ public:
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
                                 const StringIntMaps& _topicLifeSpanMaps = StringIntMaps(),
-                                bool _ignoreRetweetsWithoutTimedTopics = false);
+                                bool _ignoreRetweetsWithoutTimedTopics = false,
+                                bool _usePersonalisedLifeSpanMaps = false);
     
     virtual void evaluateSystem(const std::string& _usersFile, 
                                 ProfileType _profileType,
@@ -46,7 +48,8 @@ public:
                                 int _candidatePeriodInHours, 
                                 const std::string& _outFileName,
                                 const StringIntMaps& _topicLifeSpanMaps = StringIntMaps(),
-                                bool _ignoreRetweetsWithoutTimedTopics = false);
+                                bool _ignoreRetweetsWithoutTimedTopics = false,
+                                bool _usePersonalisedLifeSpanMaps = false);
 };
 
 }
